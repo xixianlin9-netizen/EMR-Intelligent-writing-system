@@ -10,13 +10,16 @@
     
     <el-card class="login-card" :body-style="{ padding: 0 }" shadow="xl">
       <div class="card-content">
-        <!-- Logo区域 -->
+        <!-- Logo区域 - 修改了图标为文件图标 -->
         <div class="logo-area">
           <div class="logo-icon">
             <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M8 8H16V16H8V8Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M12 12L16 16M12 12L8 16M12 12L16 8M12 12L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- 文件主体 -->
+              <path d="M4 4H15L19 8V20H4V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 文件折角 -->
+              <path d="M15 4L19 8H15V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 文件上的文字横线（代表病历内容） -->
+              <path d="M8 10H16M8 13H14M8 16H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </div>
           <h1 class="title">电子病历智能书写系统</h1>
