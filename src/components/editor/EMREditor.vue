@@ -72,7 +72,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useEmrStore } from '@/stores/emrStore'
+import { useEmrStore } from '@/stores/emrStore'  // 确保这个导入正确
 import { usePatientStore } from '@/stores/patientStore'
 import DataReferencePanel from './DataReferencePanel.vue'
 import StructuredForm from './StructuredForm.vue'
@@ -84,20 +84,35 @@ import { formatReferenceItem } from '@/utils/ruleEngine'
 const emrStore = useEmrStore()
 const patientStore = usePatientStore()
 
-// 双向绑定数据
-const chiefComplaint = ref(emrStore.chiefComplaint)
-const presentIllness = ref(emrStore.presentIllness)
-const diagnoses = ref(emrStore.diagnoses)
-const richTextContent = ref(emrStore.richTextContent)
+// 从 store 获取数据
+const chiefComplaint = computed({
+  get: () => emrStore.chiefComplaint,
+  set: (val) => emrStore.setChiefComplaint(val)
+})
+
+const presentIllness = computed({
+  get: () => emrStore.presentIllness,
+  set: (val) => emrStore.setPresentIllness(val)
+})
+
+const diagnoses = computed({
+  get: () => emrStore.diagnoses,
+  set: (val) => emrStore.diagnoses = val
+})
+
+const richTextContent = computed({
+  get: () => emrStore.richTextContent,
+  set: (val) => emrStore.richTextContent = val
+})
+
+// 当前患者
+const currentPatient = computed(() => patientStore.currentPatient)
 
 // UI状态
 const saving = ref(false)
 const isSaved = ref(true)
 const showDraftRecovery = ref(false)
 const editorRef = ref(null)
-
-// 当前患者
-const currentPatient = computed(() => patientStore.currentPatient)
 
 // 字数统计
 const wordCount = computed(() => {
@@ -114,10 +129,7 @@ watch([chiefComplaint, presentIllness, diagnoses, richTextContent], () => {
 
 // 更新store
 function updateStore() {
-  emrStore.setChiefComplaint(chiefComplaint.value)
-  emrStore.setPresentIllness(presentIllness.value)
-  emrStore.diagnoses = diagnoses.value
-  emrStore.richTextContent = richTextContent.value
+  // store 已经通过 computed 自动更新，这里不需要额外操作
 }
 
 // 处理插入引用
@@ -127,13 +139,15 @@ function handleInsert(items) {
     if (editorRef.value) {
       editorRef.value.insertReference?.(formattedText, item.type, item.id)
     }
+    // 添加到引用记录
+    emrStore.addReferenceRecord(item)
   })
   ElMessage.success(`已插入 ${items.length} 项引用`)
 }
 
 // 处理内容变化
 function handleContentChange(content) {
-  richTextContent.value = content
+  emrStore.richTextContent = content
 }
 
 // 保存病历
@@ -141,7 +155,6 @@ async function handleSave() {
   saving.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 1000))
-    updateStore()
     isSaved.value = true
     clearDraft()
     ElMessage.success('保存成功')
@@ -155,14 +168,15 @@ function handlePreview() {
   ElMessage.info('预览功能开发中')
 }
 
-// 提交
+// 提交 - 这里需要触发父组件的提交事件
 function handleSubmit() {
   ElMessageBox.confirm('确认提交病历？提交后将不可修改', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   }).then(() => {
     handleSave()
-    ElMessage.success('提交成功')
+    // 触发父组件的提交事件
+    emit('submit')
   })
 }
 
@@ -170,10 +184,7 @@ function handleSubmit() {
 function restoreDraft() {
   const draft = loadDraft()
   if (draft) {
-    chiefComplaint.value = draft.chiefComplaint
-    presentIllness.value = draft.presentIllness
-    diagnoses.value = draft.diagnoses
-    richTextContent.value = draft.richTextContent
+    emrStore.restoreState(draft)
     showDraftRecovery.value = false
     ElMessage.success('草稿已恢复')
   }
@@ -190,6 +201,9 @@ onMounted(() => {
     showDraftRecovery.value = true
   }
 })
+
+// 定义事件
+const emit = defineEmits(['submit'])
 </script>
 
 <style scoped>
