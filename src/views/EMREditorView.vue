@@ -152,12 +152,43 @@ function handleSubmit() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    // 更新病历状态为已完成
+    // 创建病历记录并提交
     if (currentPatient.value) {
-      console.log('提交病历，更新状态:', currentPatient.value.id, emrId.value)
+      console.log('=== 开始提交病历 ===')
+      console.log('当前患者:', currentPatient.value)
       
-      // 调用 store 的方法更新状态
-      emrRecordStore.updateRecordStatus(currentPatient.value.id, emrId.value)
+      // 创建病历记录对象
+      const emrRecord = {
+        id: emrId.value,
+        patientId: currentPatient.value.id,
+        patientName: currentPatient.value.name,
+        gender: currentPatient.value.gender,
+        age: currentPatient.value.age,
+        type: '病历记录',
+        createTime: new Date().toLocaleString('zh-CN', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/\//g, '-'),
+        status: 'completed',
+        alert: null,
+        diagnosis: currentPatient.value.diagnosis
+      }
+      
+      console.log('准备添加的记录:', emrRecord)
+      
+      // 调用 store 的方法添加记录
+      const addedRecord = emrRecordStore.addRecord(emrRecord)
+      console.log('addRecord 返回:', addedRecord)
+      
+      // 同时更新状态（如果是已有记录）
+      const updatedRecord = emrRecordStore.updateRecordStatus(currentPatient.value.id, emrId.value)
+      console.log('updateRecordStatus 返回:', updatedRecord)
+      
+      // 查看当前 store 中的所有记录
+      console.log('当前 store 中的所有记录:', emrRecordStore.recentEmrRecords)
     }
     
     emrStatus.value = 'completed'

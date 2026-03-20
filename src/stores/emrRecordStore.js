@@ -1,96 +1,114 @@
 // src/stores/emrRecordStore.js
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import storageService from '@/services/storageService'
 
 export const useEmrRecordStore = defineStore('emrRecord', () => {
-  // 最近编辑的病历记录
-  const recentEmrRecords = ref([
-    { 
-      id: 'emr_001',
-      patientId: 'p001',
-      patientName: '张明',
-      gender: '男',
-      age: 45,
-      type: '入院记录',
-      createTime: '2026-03-17 09:30',
-      status: 'pending',
-      alert: { level: 'warning', message: '入院记录应在8小时内完成，已超时2小时' }
-    },
-    { 
-      id: 'emr_002',
-      patientId: 'p002',
-      patientName: '李芳',
-      gender: '女',
-      age: 52,
-      type: '病程记录',
-      createTime: '2026-03-16 14:20',
-      status: 'pending',
-      alert: { level: 'error', message: '病程记录应在24小时内完成，已超时5小时' } // 将 danger 改为 error
-    },
-    { 
-      id: 'emr_003',
-      patientId: 'p003',
-      patientName: '王伟',
-      gender: '男',
-      age: 38,
-      type: '出院小结',
-      createTime: '2026-03-17 15:45',
-      status: 'completed',
-      alert: null
-    }
-  ])
+  // 从 localStorage 加载病历记录
+  const recentEmrRecords = ref(storageService.getEmrRecords())
 
   // 更新病历状态为已完成
   function updateRecordStatus(patientId, emrId) {
     console.log('更新病历状态:', patientId, emrId)
     
     // 查找匹配的病历记录
-    const record = recentEmrRecords.value.find(r => r.id === emrId || r.patientId === patientId)
+    const index = recentEmrRecords.value.findIndex(r => r.id === emrId || r.patientId === patientId)
     
-    if (record) {
-      console.log('找到记录，更新状态:', record)
-      record.status = 'completed'
-      record.alert = null
-      
-      // 触发响应式更新 - 重新赋值数组
-      recentEmrRecords.value = [...recentEmrRecords.value]
-    } else {
-      console.log('未找到匹配的记录，创建新记录')
-      // 获取当前时间
-      const now = new Date()
-      const timeStr = now.toLocaleString('zh-CN', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).replace(/\//g, '-')
-      
-      // 创建新记录
-      const newRecord = {
-        id: emrId,
-        patientId: patientId,
-        patientName: '张明', // 这里应该从患者信息获取，暂时用默认值
-        gender: '男',
-        age: 45,
-        type: '病历记录',
-        createTime: timeStr,
+    if (index !== -1) {
+      // 更新记录
+      const updatedRecord = {
+        ...recentEmrRecords.value[index],
         status: 'completed',
-        alert: null
+        alert: null,
+        completedTime: new Date().toISOString()
       }
-      recentEmrRecords.value = [newRecord, ...recentEmrRecords.value]
+      
+      // 创建新数组
+      const updatedRecords = [...recentEmrRecords.value]
+      updatedRecords[index] = updatedRecord
+      
+      // 更新响应式数据
+      recentEmrRecords.value = updatedRecords
+      
+      // 保存到 localStorage
+      storageService.updateEmrRecord(updatedRecord.id, { 
+        status: 'completed', 
+        alert: null,
+        completedTime: new Date().toISOString()
+      })
+      
+      console.log('病历状态已更新为已完成')
+      return updatedRecord
     }
+    return null
   }
 
   // 添加新病历记录
   function addRecord(record) {
-    recentEmrRecords.value = [record, ...recentEmrRecords.value]
+    console.log('添加新病历记录:', record)
+    
+    // 检查是否已存在相同记录
+    const existingIndex = recentEmrRecords.value.findIndex(r => r.id === record.id)
+    
+    let newRecord
+    if (existingIndex !== -1) {
+      // 更新现有记录
+      newRecord = {
+        ...recentEmrRecords.value[existingIndex],
+        ...record,
+        updatedTime: new Date().toISOString()
+      }
+      const updatedRecords = [...recentEmrRecords.value]
+      updatedRecords[existingIndex] = newRecord
+      recentEmrRecords.value = updatedRecords
+      
+      // 更新 localStorage
+      storageService.updateEmrRecord(record.id, newRecord)
+    } else {
+      // 创建新记录
+      newRecord = {
+        ...record,
+        id: record.id || `emr_${Date.now()}`,
+        createTime: record.createTime || new Date().toLocaleString('zh-CN', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/\//g, '-'),
+        addedTime: new Date().toISOString()
+      }
+      
+      // 添加到列表最前面
+      recentEmrRecords.value = [newRecord, ...recentEmrRecords.value]
+      
+      // 保存到 localStorage
+      storageService.addEmrRecord(newRecord)
+    }
+    
+    console.log('病历记录已添加/更新，当前记录数:', recentEmrRecords.value.length)
+    return newRecord
+  }
+
+  // 根据患者ID获取病历记录
+  function getRecordsByPatientId(patientId) {
+    return recentEmrRecords.value.filter(r => r.patientId === patientId)
+  }
+
+  // 根据病历ID获取记录
+  function getRecordById(id) {
+    return recentEmrRecords.value.find(r => r.id === id) || null
   }
 
   // 获取告警列表
   const alerts = computed(() => {
     return recentEmrRecords.value
-      .map(record => record.alert)
+      .map(record => {
+        if (record.status === 'pending' && record.alert) {
+          return record.alert
+        }
+        return null
+      })
       .filter(alert => alert !== null)
   })
 
@@ -102,12 +120,31 @@ export const useEmrRecordStore = defineStore('emrRecord', () => {
   // 获取告警数量
   const alertCount = computed(() => alerts.value.length)
 
+  // 获取今日完成的病历数量
+  const todayCompletedCount = computed(() => {
+    const today = new Date().toDateString()
+    return recentEmrRecords.value.filter(r => {
+      return r.status === 'completed' && 
+             new Date(r.completedTime || r.createTime).toDateString() === today
+    }).length
+  })
+
+  // 刷新数据（从 localStorage 重新加载）
+  function refreshRecords() {
+    recentEmrRecords.value = storageService.getEmrRecords()
+    console.log('刷新病历记录，当前记录数:', recentEmrRecords.value.length)
+  }
+
   return {
     recentEmrRecords,
     alerts,
     pendingCount,
     alertCount,
+    todayCompletedCount,
     updateRecordStatus,
-    addRecord
+    addRecord,
+    getRecordsByPatientId,
+    getRecordById,
+    refreshRecords
   }
 })

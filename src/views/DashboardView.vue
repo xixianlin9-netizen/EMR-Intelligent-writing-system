@@ -1,12 +1,13 @@
 <!-- src/views/DashboardView.vue -->
 <template>
   <div class="dashboard">
-    <!-- 告警区域 - 修复 type 属性 -->
+    <!-- 告警区域 -->
     <el-alert
       v-for="(alert, index) in alerts"
       :key="index"
       :title="alert.message"
-      :type="alert.level === 'error' ? 'error' : alert.level" 
+      :type="alert.level === 'error' ? 'error' : alert.level"
+      :closable="false"
       show-icon
       class="alert-item"
     />
@@ -17,11 +18,11 @@
           <template #header>
             <div class="card-header">
               <span>今日接诊</span>
-              <el-tag type="success">+12%</el-tag>
+              <el-tag type="success">+{{ todayCompletedCount }}</el-tag>
             </div>
           </template>
-          <div class="stat-number">24</div>
-          <div class="stat-desc">较昨日增加3人</div>
+          <div class="stat-number">{{ todayCompletedCount }}</div>
+          <div class="stat-desc">今日已完成病历</div>
         </el-card>
       </el-col>
       
@@ -75,12 +76,14 @@
             </div>
           </template>
           
+          <!-- 使用 :key 强制重新渲染 -->
           <el-table :data="recentEmrRecords" stripe style="width: 100%" :key="tableKey">
             <el-table-column prop="patientName" label="患者姓名" width="100" />
             <el-table-column prop="gender" label="性别" width="60" />
             <el-table-column prop="age" label="年龄" width="60" />
             <el-table-column prop="type" label="病历类型" width="100" />
             <el-table-column prop="createTime" label="创建时间" width="120" />
+            <el-table-column prop="diagnosis" label="诊断" min-width="150" show-overflow-tooltip />
             <el-table-column prop="status" label="状态" width="90">
               <template #default="{ row }">
                 <span :class="row.status === 'completed' ? 'status-completed' : 'status-pending'">
@@ -114,6 +117,9 @@
               </template>
             </el-table-column>
           </el-table>
+          
+          <!-- 空状态提示 -->
+          <el-empty v-if="recentEmrRecords.length === 0" description="暂无病历记录" />
         </el-card>
       </el-col>
       
@@ -139,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { Document, WarningFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -150,15 +156,29 @@ const router = useRouter()
 const emrRecordStore = useEmrRecordStore()
 
 // 使用 storeToRefs 保持响应性
-const { recentEmrRecords, alerts, pendingCount, alertCount } = storeToRefs(emrRecordStore)
+const { recentEmrRecords, alerts, pendingCount, alertCount, todayCompletedCount } = storeToRefs(emrRecordStore)
 
-// 表格key，用于强制刷新
+// 强制重新渲染的 key
 const tableKey = ref(0)
 
-// 监听数据变化，更新表格key
-watch(recentEmrRecords, () => {
+// 监听数据变化
+watch(recentEmrRecords, (newVal) => {
+  console.log('recentEmrRecords 变化:', newVal?.length)
   tableKey.value++
 }, { deep: true })
+
+// 页面激活时强制刷新
+onActivated(() => {
+  console.log('Dashboard 激活，强制刷新')
+  emrRecordStore.refreshRecords()
+  tableKey.value++
+})
+
+// 初始化时加载数据
+onMounted(() => {
+  console.log('Dashboard 挂载，加载数据')
+  emrRecordStore.refreshRecords()
+})
 
 // 最近患者数据（用于显示）
 const recentPatients = ref([

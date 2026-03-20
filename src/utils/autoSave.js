@@ -1,32 +1,58 @@
 // src/utils/autoSave.js
 import { debounce } from 'lodash-es'
-import { useEmrStore } from '@/stores/emrStore'  // 确保导入名称正确
+import storageService from '@/services/storageService'
+
+// 生成内容哈希用于比对
+const generateHash = (content) => {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(content))))
+}
 
 // 自动保存（防抖30秒）
-export const autoSave = debounce(() => {
+export const autoSave = debounce((emrState) => {
   try {
-    const emrStore = useEmrStore()
-    const state = emrStore.fullState
+    // 生成当前内容的哈希
+    const currentHash = generateHash(emrState)
     
-    // 计算简单哈希
-    const hash = btoa(JSON.stringify(state))
-    state.draftHash = hash
+    // 获取上次保存的草稿
+    const lastDraft = storageService.getDraft()
     
-    localStorage.setItem('emrDraft', JSON.stringify(state))
-    console.log('草稿已自动保存', new Date().toLocaleTimeString())
+    // 如果内容没有变化，不保存
+    if (lastDraft && lastDraft.hash === currentHash) {
+      console.log('内容无变化，跳过自动保存')
+      return false
+    }
+    
+    // 准备保存的数据
+    const draftData = {
+      ...emrState,
+      hash: currentHash,
+      lastSaved: new Date().toISOString(),
+      autoSave: true
+    }
+    
+    // 保存到 localStorage
+    storageService.saveDraft(draftData)
+    console.log('草稿自动保存成功', new Date().toLocaleTimeString())
+    
+    return true
   } catch (error) {
     console.error('自动保存失败:', error)
+    return false
   }
 }, 30000)
 
 // 手动保存
-export function manualSave() {
+export function manualSave(emrState) {
   try {
-    const emrStore = useEmrStore()
-    const state = emrStore.fullState
-    const hash = btoa(JSON.stringify(state))
-    state.draftHash = hash
-    localStorage.setItem('emrDraft', JSON.stringify(state))
+    const hash = generateHash(emrState)
+    const draftData = {
+      ...emrState,
+      hash,
+      lastSaved: new Date().toISOString(),
+      autoSave: false
+    }
+    storageService.saveDraft(draftData)
+    console.log('手动保存成功')
     return true
   } catch (error) {
     console.error('手动保存失败:', error)
@@ -36,22 +62,36 @@ export function manualSave() {
 
 // 加载草稿
 export function loadDraft() {
-  const draft = localStorage.getItem('emrDraft')
-  if (!draft) return null
-  try {
-    return JSON.parse(draft)
-  } catch (error) {
-    console.error('加载草稿失败:', error)
-    return null
-  }
+  return storageService.getDraft()
 }
 
 // 清除草稿
 export function clearDraft() {
-  localStorage.removeItem('emrDraft')
+  storageService.clearDraft()
 }
 
 // 检查是否有草稿
 export function hasDraft() {
-  return localStorage.getItem('emrDraft') !== null
+  return storageService.hasDraft()
+}
+
+// 比较草稿与当前内容的差异
+export function compareDraftWithCurrent(currentState) {
+  const draft = storageService.getDraft()
+  if (!draft) return null
+  
+  const currentHash = generateHash(currentState)
+  
+  return {
+    hasChanges: draft.hash !== currentHash,
+    draft,
+    current: currentState
+  }
+}
+
+// 恢复草稿后清除
+export function restoreAndClear() {
+  const draft = storageService.getDraft()
+  storageService.clearDraft()
+  return draft
 }
