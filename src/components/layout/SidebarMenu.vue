@@ -43,6 +43,8 @@
   </template>
   
   <script setup>
+  // 在现有的 import 后面添加这一行
+  import { DocumentChecked } from '@element-plus/icons-vue'
   import { computed } from 'vue'
   import { useRoute } from 'vue-router'
   import { Odometer, User, Document, DataLine, Files } from '@element-plus/icons-vue'
