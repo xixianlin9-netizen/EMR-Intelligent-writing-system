@@ -39,6 +39,10 @@
         <el-icon><Files /></el-icon>
         <span>模板库</span>
       </el-menu-item>
+      <el-menu-item index="/quality">
+       <el-icon><DocumentChecked /></el-icon>
+       <span>病历质控</span>
+      </el-menu-item>
     </el-menu>
   </template>
   
