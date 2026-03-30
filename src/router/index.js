@@ -41,6 +41,12 @@ const router = createRouter({
           path: 'template-library',
           name: 'TemplateLibrary',
           component: () => import('@/views/TemplateLibraryView.vue')
+        },
+        {
+          path: 'quality',
+          name: 'QualityManage',
+          component: () => import('@/views/QualityManageView.vue'),
+          meta: { title: '病历质控' }//新添加：3/21
         }
       ]
     },
@@ -48,12 +54,6 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/NotFoundView.vue')
-    },
-    {
-      path: 'quality',           // 👈 添加这个
-      name: 'QualityManage',
-      component: () => import('@/views/QualityManageView.vue'),
-      meta: { title: '病历质控' }
     }
   ]
 })
