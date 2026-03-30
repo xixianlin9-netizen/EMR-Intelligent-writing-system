@@ -48,6 +48,12 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/NotFoundView.vue')
+    },
+    {
+      path: 'quality',           // 👈 添加这个
+      name: 'QualityManage',
+      component: () => import('@/views/QualityManageView.vue'),
+      meta: { title: '病历质控' }
     }
   ]
 })
