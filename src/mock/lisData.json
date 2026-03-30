@@ -1,0 +1,58 @@
+[
+    {
+      "id": "lab_001",
+      "patientId": "p001",
+      "date": "2026-03-16",
+      "items": [
+        {
+          "itemName": "白细胞",
+          "value": 6.5,
+          "unit": "×10⁹/L",
+          "referenceRange": "4.0-10.0",
+          "flag": "normal"
+        },
+        {
+          "itemName": "中性粒细胞",
+          "value": 70,
+          "unit": "%",
+          "referenceRange": "50-70",
+          "flag": "normal"
+        },
+        {
+          "itemName": "C反应蛋白",
+          "value": 8.2,
+          "unit": "mg/L",
+          "referenceRange": "<10",
+          "flag": "normal"
+        }
+      ]
+    },
+    {
+      "id": "lab_002",
+      "patientId": "p001",
+      "date": "2026-03-15",
+      "items": [
+        {
+          "itemName": "白细胞",
+          "value": 12.5,
+          "unit": "×10⁹/L",
+          "referenceRange": "4.0-10.0",
+          "flag": "high"
+        },
+        {
+          "itemName": "中性粒细胞",
+          "value": 85,
+          "unit": "%",
+          "referenceRange": "50-70",
+          "flag": "high"
+        },
+        {
+          "itemName": "C反应蛋白",
+          "value": 25.3,
+          "unit": "mg/L",
+          "referenceRange": "<10",
+          "flag": "high"
+        }
+      ]
+    }
+  ]

@@ -1,0 +1,419 @@
+/* src/styles.css */
+
+/* 全局变量 */
+:root {
+  --primary-color: #409eff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+  
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  --text-placeholder: #c0c4cc;
+  
+  --border-color: #e4e7ed;
+  --border-light: #ebeef5;
+  
+  --background-base: #f5f7fa;
+  --background-white: #ffffff;
+  
+  --font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+}
+
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--text-primary);
+  background-color: var(--background-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 工具类 */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* 边距工具类 */
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.ml-10 { margin-left: 10px; }
+.ml-20 { margin-left: 20px; }
+.mr-10 { margin-right: 10px; }
+.mr-20 { margin-right: 20px; }
+
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }
+
+/* 弹性布局 */
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 网格布局 */
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* 文字工具类 */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  -ms-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
+  /* 标准写法（未来可能支持） */
+  display: -webkit-box;
+  display: box;
+  line-clamp: 2;
+}
+
+/* 引用块样式 */
+.reference-block {
+  background-color: #ecf5ff;
+  border-left: 3px solid var(--primary-color);
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 0 4px 4px 0;
+  font-style: normal;
+  position: relative;
+}
+
+.reference-block:hover {
+  background-color: #e1f0ff;
+}
+
+.reference-block::before {
+  content: '📎 引用';
+  display: block;
+  font-size: 12px;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.reference-block[data-reference-type="lab"] {
+  border-left-color: var(--warning-color);
+}
+
+.reference-block[data-reference-type="imaging"] {
+  border-left-color: var(--success-color);
+}
+
+.reference-block[data-reference-type="template"] {
+  border-left-color: var(--danger-color);
+}
+
+.reference-block[data-reference-type="order"] {
+  border-left-color: var(--info-color);
+}
+
+.reference-block[data-reference-type="lab"]::before {
+  content: '🔬 检验结果';
+  color: var(--warning-color);
+}
+
+.reference-block[data-reference-type="imaging"]::before {
+  content: '📷 影像报告';
+  color: var(--success-color);
+}
+
+.reference-block[data-reference-type="template"]::before {
+  content: '📋 模板';
+  color: var(--danger-color);
+}
+
+.reference-block[data-reference-type="order"]::before {
+  content: '💊 医嘱';
+  color: var(--info-color);
+}
+
+/* 结构化字段样式 */
+.structured-field {
+  background-color: #f0f9eb;
+  border: 1px dashed var(--success-color);
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin: 0 2px;
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+/* 病历内容样式 */
+.emr-content {
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.emr-content h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+  color: var(--text-primary);
+}
+
+.emr-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0.8em 0 0.4em;
+  color: var(--text-primary);
+}
+
+.emr-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0.6em 0 0.3em;
+  color: var(--text-primary);
+}
+
+.emr-content p {
+  margin: 0.5em 0;
+}
+
+.emr-content ul,
+.emr-content ol {
+  padding-left: 2em;
+  margin: 0.5em 0;
+}
+
+.emr-content li {
+  margin: 0.2em 0;
+}
+
+.emr-content blockquote {
+  border-left: 3px solid var(--border-color);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--text-secondary);
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white;
+  }
+  
+  .emr-content {
+    font-size: 12pt;
+  }
+  
+  .emr-content h1 {
+    font-size: 18pt;
+  }
+  
+  .emr-content h2 {
+    font-size: 16pt;
+  }
+  
+  .emr-content h3 {
+    font-size: 14pt;
+  }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #e5e5e5;
+    --text-regular: #a0a0a0;
+    --text-secondary: #808080;
+    --border-color: #3a3a3a;
+    --border-light: #2c2c2c;
+    --background-base: #1e1e1e;
+    --background-white: #2a2a2a;
+  }
+  
+  body {
+    background-color: #1e1e1e;
+    color: #e5e5e5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #2a2a2a;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5a;
+  }
+  
+  .reference-block {
+    background-color: #1a2a3a;
+  }
+  
+  .reference-block:hover {
+    background-color: #1f3345;
+  }
+  
+  .structured-field {
+    background-color: #1a3a1a;
+  }
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease;
+}
+
+/* Element Plus 样式覆盖 */
+.el-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.el-card__header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 600;
+}
+
+.el-tabs__nav-wrap::after {
+  height: 1px;
+}
+
+.el-dialog__body {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.el-table th {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .el-card__body {
+    padding: 15px;
+  }
+  
+  .el-dialog {
+    width: 90% !important;
+  }
+}

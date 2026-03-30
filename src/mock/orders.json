@@ -1,0 +1,31 @@
+
+[
+    {
+      "id": "ord_001",
+      "name": "抗感染方案",
+      "category": "medication",
+      "content": "头孢呋辛酯片 0.25g bid po",
+      "description": "适用于呼吸道感染"
+    },
+    {
+      "id": "ord_002",
+      "name": "补液方案",
+      "category": "treatment",
+      "content": "0.9%氯化钠注射液 500ml ivgtt qd",
+      "description": "基础补液"
+    },
+    {
+      "id": "ord_003",
+      "name": "止咳化痰",
+      "category": "medication",
+      "content": "盐酸氨溴索片 30mg tid po",
+      "description": "祛痰治疗"
+    },
+    {
+      "id": "ord_004",
+      "name": "降压方案",
+      "category": "medication",
+      "content": "硝苯地平缓释片 30mg qd po",
+      "description": "高血压常规治疗"
+    }
+  ]

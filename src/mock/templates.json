@@ -1,0 +1,14 @@
+[
+    {
+      "id": "tmp_001",
+      "name": "普通感冒模板",
+      "category": "common",
+      "content": "主诉：{{chiefComplaint}}\n现病史：患者{{presentIllness}}起病，主要表现为{{symptoms}}。\n既往史：{{pastHistory}}\n体格检查：{{physicalExam}}\n诊断：{{diagnosis}}\n治疗意见：{{treatment}}"
+    },
+    {
+      "id": "tmp_002",
+      "name": "高血压随访模板",
+      "category": "chronic",
+      "content": "主诉：{{chiefComplaint}}\n现病史：患者高血压病史{{years}}年，近期血压控制在{{bp}}。\n用药情况：{{medication}}\n体格检查：BP {{bpValue}}mmHg\n诊断：高血压病{{grade}}级\n治疗意见：{{treatment}}"
+    }
+  ]
