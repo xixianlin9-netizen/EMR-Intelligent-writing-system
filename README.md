@@ -252,7 +252,7 @@ npm run dev
 
 仓库更新命令
 git add - 添加修改
-git commit - 提交到本地
+git commit -m "具体的更新内容"-提交到本地
 git pull - 拉取协作者更新
 git push - 推送到远程
 
