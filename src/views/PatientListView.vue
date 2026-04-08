@@ -4,16 +4,24 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>患者列表</span>
+          <div class="header-title">
+            <el-icon :size="20" class="title-icon">
+              <UserFilled />
+            </el-icon>
+            <span class="title-text">{{ isOutpatient ? '门诊患者列表' : '住院患者列表' }}</span>
+            <el-tag :type="isOutpatient ? 'success' : 'primary'" size="small" class="mode-tag">
+              {{ isOutpatient ? '门诊模式' : '住院模式' }}
+            </el-tag>
+          </div>
           <div class="header-actions">
             <el-input
               v-model="searchKeyword"
-              placeholder="搜索患者姓名/诊断"
+              :placeholder="isOutpatient ? '搜索患者姓名/诊断' : '搜索患者姓名/诊断/床号'"
               :prefix-icon="Search"
               clearable
-              style="width: 250px; margin-right: 10px;"
+              style="width: 260px; margin-right: 10px;"
             />
-            <el-select v-model="selectedDepartment" placeholder="科室" clearable style="width: 120px;">
+            <el-select v-model="selectedDepartment" placeholder="科室筛选" clearable style="width: 140px;">
               <el-option
                 v-for="dept in departments"
                 :key="dept"
@@ -21,59 +29,173 @@
                 :value="dept"
               />
             </el-select>
+            <el-button @click="refreshList" :icon="Refresh" circle />
           </div>
         </div>
       </template>
       
-      <el-table :data="filteredPatients" stripe v-loading="loading">
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="gender" label="性别" width="80" />
-        <el-table-column prop="age" label="年龄" width="80" />
-        <el-table-column prop="idNumber" label="身份证号" width="180" show-overflow-tooltip />
+      <el-table :data="filteredPatients" stripe v-loading="loading" style="width: 100%">
+        <el-table-column prop="name" label="姓名" width="100" fixed="left">
+          <template #default="{ row }">
+            <span class="patient-name">{{ row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="gender" label="性别" width="70" />
+        <el-table-column prop="age" label="年龄" width="70" />
+        
+        <!-- 住院模式专属字段 -->
+        <el-table-column v-if="isInpatient" prop="bedNumber" label="床号" width="80">
+          <template #default="{ row }">
+            <el-tag size="small" type="info">{{ row.bedNumber || '-' }}</el-tag>
+          </template>
+        </el-table-column>
+        
         <el-table-column prop="phone" label="联系电话" width="130" />
-        <el-table-column prop="admissionDate" label="入院日期" width="120" />
-        <el-table-column prop="department" label="科室" width="120" />
-        <el-table-column prop="bedNumber" label="床号" width="80" />
-        <el-table-column prop="diagnosis" label="诊断" show-overflow-tooltip />
-        <el-table-column label="操作" width="150" fixed="right">
-           <template #default="{ row }">
-             <el-button type="primary" link @click="gotoEMREditor(row.id)">写病历</el-button>
-             <el-button type="success" link @click="viewPatientDetail(row)">详情</el-button>
-           </template>
+        
+        <!-- 住院模式：身份证号 -->
+        <el-table-column v-if="isInpatient" prop="idNumber" label="身份证号" width="180" show-overflow-tooltip />
+        
+        <!-- 门诊模式：就诊日期和时间 -->
+        <el-table-column v-if="isOutpatient" prop="visitDate" label="就诊日期" width="110" />
+        <el-table-column v-if="isOutpatient" prop="visitTime" label="就诊时间" width="90" />
+        
+        <!-- 住院模式：入院日期 -->
+        <el-table-column v-if="isInpatient" prop="admissionDate" label="入院日期" width="110" />
+        
+        <el-table-column prop="department" label="科室" width="110" />
+        <el-table-column prop="diagnosis" label="诊断" show-overflow-tooltip min-width="180">
+          <template #default="{ row }">
+            <span class="diagnosis-text">{{ row.diagnosis }}</span>
+          </template>
+        </el-table-column>
+        
+        <!-- 门诊模式：就诊医生 -->
+        <el-table-column v-if="isOutpatient" prop="doctor" label="接诊医生" width="100" />
+        
+        <!-- 住院模式：主治医生 -->
+        <el-table-column v-if="isInpatient" prop="attendingDoctor" label="主治医生" width="100" />
+        
+        <el-table-column label="操作" width="130" fixed="right">
+          <template #default="{ row }">
+            <el-button 
+              type="primary" 
+              link 
+              @click="gotoEMREditor(row.id)"
+              class="action-btn"
+            >
+              <el-icon><Edit /></el-icon>
+              写病历
+            </el-button>
+            <el-button 
+              type="success" 
+              link 
+              @click="viewPatientDetail(row)"
+              class="action-btn"
+            >
+              <el-icon><View /></el-icon>
+              详情
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
+      
+      <!-- 空状态 -->
+      <el-empty v-if="filteredPatients.length === 0 && !loading" description="暂无患者数据" />
+      
+      <!-- 底部统计 -->
+      <div class="table-footer" v-if="filteredPatients.length > 0">
+        <div class="footer-left">
+          <span class="total-count">共 {{ filteredPatients.length }} 条记录</span>
+          <span class="mode-info">
+            <el-icon><InfoFilled /></el-icon>
+            {{ isOutpatient ? '今日门诊量：' + todayVisitCount : '在院患者数：' + filteredPatients.length }}
+          </span>
+        </div>
+      </div>
     </el-card>
+    
+    <!-- 患者详情对话框（保持原有代码） -->
+    <el-dialog 
+      v-model="detailDialogVisible" 
+      :title="`患者详情 - ${currentPatient?.name || ''}`" 
+      width="550px"
+      class="patient-detail-dialog"
+    >
+      <!-- 详情内容保持不变 -->
+      <div v-if="currentPatient" class="patient-detail">
+        <div class="detail-section">
+          <h4>基本信息</h4>
+          <el-row :gutter="16">
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">姓名：</span>
+                <span class="value">{{ currentPatient.name }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">性别：</span>
+                <span class="value">{{ currentPatient.gender }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">年龄：</span>
+                <span class="value">{{ currentPatient.age }}岁</span>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="detailDialogVisible = false">关闭</el-button>
+        <el-button type="primary" @click="gotoEMREditor(currentPatient?.id)">
+          写病历
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import patientsData from '@/mock/patients.json'
+import { Search, UserFilled, Edit, View, InfoFilled, Refresh } from '@element-plus/icons-vue'
+import { useSystemModeStore } from '@/stores/systemModeStore'
+import { usePatientStore } from '@/stores/patientStore'
+
+// 静态导入数据
+import outpatientData from '@/mock/patients_outpatient.json'
+import inpatientData from '@/mock/patients.json'
 
 const router = useRouter()
+const systemModeStore = useSystemModeStore()
+const patientStore = usePatientStore()
+
+// 获取模式状态
+const isOutpatient = computed(() => systemModeStore.isOutpatient)
+const isInpatient = computed(() => systemModeStore.isInpatient)
+
+// 本地状态
 const loading = ref(false)
-const patients = ref([])
 const searchKeyword = ref('')
 const selectedDepartment = ref('')
-
-// 加载患者数据
-onMounted(async () => {
-  loading.value = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    patients.value = patientsData
-  } finally {
-    loading.value = false
-  }
-})
+const detailDialogVisible = ref(false)
+const currentPatient = ref(null)
+const patients = ref([])
 
 // 科室列表
 const departments = computed(() => {
   const deps = new Set(patients.value.map(p => p.department))
-  return Array.from(deps)
+  return ['全部科室', ...Array.from(deps)]
+})
+
+// 今日门诊量（门诊模式）
+const todayVisitCount = computed(() => {
+  if (!isOutpatient.value) return 0
+  const today = new Date().toISOString().slice(0, 10)
+  return patients.value.filter(p => p.visitDate === today).length
 })
 
 // 过滤后的患者
@@ -84,29 +206,86 @@ const filteredPatients = computed(() => {
     const keyword = searchKeyword.value.toLowerCase()
     filtered = filtered.filter(p => 
       p.name.toLowerCase().includes(keyword) ||
-      p.diagnosis.toLowerCase().includes(keyword)
+      p.diagnosis.toLowerCase().includes(keyword) ||
+      (isInpatient.value && p.bedNumber?.toLowerCase().includes(keyword))
     )
   }
   
-  if (selectedDepartment.value) {
+  if (selectedDepartment.value && selectedDepartment.value !== '全部科室') {
     filtered = filtered.filter(p => p.department === selectedDepartment.value)
   }
   
   return filtered
 })
 
-function gotoEMREditor(patientId) {
-  console.log('跳转到病历编辑器，患者ID:', patientId) // 添加日志
-  router.push(`/emr-editor/${patientId}`)
+// 加载患者数据
+async function loadPatients() {
+  loading.value = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    
+    console.log('当前模式:', isOutpatient.value ? '门诊模式' : '住院模式')
+    
+    if (isOutpatient.value) {
+      patients.value = outpatientData
+      console.log('加载门诊数据，数量:', patients.value.length)
+      console.log('门诊数据示例:', patients.value[0])
+    } else {
+      patients.value = inpatientData
+      console.log('加载住院数据，数量:', patients.value.length)
+      console.log('住院数据示例:', patients.value[0])
+    }
+    
+    // 更新 store 中的患者数据
+    patientStore.patients = patients.value
+  } catch (error) {
+    console.error('加载患者数据失败:', error)
+    patients.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
-function viewPatientDetail(patient) {
-  ElMessage.info(`查看患者详情：${patient.name}`)
-  // 可以打开详情对话框
+// 刷新列表
+function refreshList() {
+  loadPatients()
+  ElMessage.success('列表已刷新')
 }
+
+// 跳转到病历编辑器
+function gotoEMREditor(patientId) {
+  if (patientId) {
+    router.push(`/emr-editor/${patientId}`)
+  } else {
+    ElMessage.warning('患者信息不完整')
+  }
+}
+
+// 查看患者详情
+function viewPatientDetail(patient) {
+  currentPatient.value = patient
+  detailDialogVisible.value = true
+}
+
+// 监听模式切换，重新加载数据
+watch(() => systemModeStore.currentMode, (newMode, oldMode) => {
+  console.log('模式切换:', oldMode, '->', newMode)
+  // 清空搜索和筛选
+  searchKeyword.value = ''
+  selectedDepartment.value = ''
+  // 重新加载数据
+  loadPatients()
+})
+
+// 初始化加载
+onMounted(() => {
+  console.log('PatientListView 初始化，当前模式:', systemModeStore.currentMode)
+  loadPatients()
+})
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .patient-list {
   padding: 0;
 }
@@ -115,10 +294,89 @@ function viewPatientDetail(patient) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-icon {
+  color: #409eff;
+}
+
+.title-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.mode-tag {
+  margin-left: 8px;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.patient-name {
+  font-weight: 500;
+  color: #303133;
+}
+
+.diagnosis-text {
+  color: #606266;
+}
+
+.action-btn {
+  margin: 0 4px;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid #e4e7ed;
+  margin-top: 12px;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.total-count {
+  font-weight: 500;
+  color: #606266;
+}
+
+.mode-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .title-text {
+    color: #e5e5e5;
+  }
+  
+  .patient-name {
+    color: #e5e5e5;
+  }
+  
+  .diagnosis-text {
+    color: #a0a0a0;
+  }
 }
 </style>

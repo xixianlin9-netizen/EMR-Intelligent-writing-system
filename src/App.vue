@@ -15,6 +15,7 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+
 const route = useRoute()
 const cachedViews = ['DashboardView', 'PatientListView', 'EMREditorView', 'DataReferenceView', 'TemplateLibraryView']
 

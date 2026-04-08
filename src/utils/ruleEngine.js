@@ -86,11 +86,11 @@ export function getItemTypeTag(type) {
 export function getPreviewText(item) {
   switch (item.type) {
     case 'order':
-      return `${item.name}：${item.content.substring(0, 50)}${item.content.length > 50 ? '...' : ''}`
+      return `${item.name}：${(item.content || '').substring(0, 50)}${(item.content || '').length > 50 ? '...' : ''}`
     case 'lab':
       return `${item.itemName} ${item.value}${item.unit}`
     case 'imaging':
-      return `${item.modality}：${item.finding.substring(0, 50)}${item.finding.length > 50 ? '...' : ''}`
+      return `${item.modality}：${(item.finding || '').substring(0, 50)}${(item.finding || '').length > 50 ? '...' : ''}`
     case 'template':
       return item.name
     default:
@@ -112,17 +112,4 @@ export function getItemSource(item) {
     default:
       return ''
   }
-}
-
-// 生成可编辑的引用块HTML（用于富文本编辑器）
-export function generateReferenceBlock(item, content) {
-  const typeClass = `reference-block reference-${item.type}`
-  const sourceAttr = `data-source="${item.type}"`
-  const sourceIdAttr = `data-source-id="${item.id}"`
-  
-  return `<div class="${typeClass}" ${sourceAttr} ${sourceIdAttr} contenteditable="false">
-    <span class="reference-label">[${getItemTypeName(item.type)}]</span>
-    <span class="reference-content">${content}</span>
-    <span class="reference-edit" onclick="this.parentElement.contentEditable='true'">✎</span>
-  </div>`
 }

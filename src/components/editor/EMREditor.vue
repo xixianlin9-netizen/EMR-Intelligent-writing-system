@@ -72,7 +72,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useEmrStore } from '@/stores/emrStore'  // 确保这个导入正确
+import { useEmrStore } from '@/stores/emrStore'
 import { usePatientStore } from '@/stores/patientStore'
 import DataReferencePanel from './DataReferencePanel.vue'
 import StructuredForm from './StructuredForm.vue'
@@ -80,6 +80,8 @@ import QuillEditor from './QuillEditor.vue'
 import DraftRecoveryBar from '../common/DraftRecoveryBar.vue'
 import { autoSave, loadDraft, clearDraft, hasDraft } from '@/utils/autoSave'
 import { formatReferenceItem } from '@/utils/ruleEngine'
+
+const emit = defineEmits(['submit'])
 
 const emrStore = useEmrStore()
 const patientStore = usePatientStore()
@@ -123,14 +125,8 @@ const wordCount = computed(() => {
 // 监听变化，触发自动保存
 watch([chiefComplaint, presentIllness, diagnoses, richTextContent], () => {
   isSaved.value = false
-  updateStore()
   autoSave()
 }, { deep: true })
-
-// 更新store
-function updateStore() {
-  // store 已经通过 computed 自动更新，这里不需要额外操作
-}
 
 // 处理插入引用
 function handleInsert(items) {
@@ -168,14 +164,13 @@ function handlePreview() {
   ElMessage.info('预览功能开发中')
 }
 
-// 提交 - 这里需要触发父组件的提交事件
+// 提交
 function handleSubmit() {
   ElMessageBox.confirm('确认提交病历？提交后将不可修改', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   }).then(() => {
     handleSave()
-    // 触发父组件的提交事件
     emit('submit')
   })
 }
@@ -201,9 +196,6 @@ onMounted(() => {
     showDraftRecovery.value = true
   }
 })
-
-// 定义事件
-const emit = defineEmits(['submit'])
 </script>
 
 <style scoped>
@@ -214,6 +206,15 @@ const emit = defineEmits(['submit'])
 
 .editor-card {
   min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.el-card__body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px !important;
 }
 
 .patient-info {
@@ -221,6 +222,7 @@ const emit = defineEmits(['submit'])
   padding: 10px;
   background-color: #f9f9f9;
   border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .patient-info .el-tag {
@@ -230,9 +232,18 @@ const emit = defineEmits(['submit'])
 .editor-wrapper {
   border: 1px solid #e4e7ed;
   border-radius: 4px;
-  min-height: 400px;
   margin-bottom: 20px;
   background-color: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
+}
+
+.editor-wrapper .quill-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-footer {
@@ -241,6 +252,7 @@ const emit = defineEmits(['submit'])
   align-items: center;
   padding-top: 10px;
   border-top: 1px solid #e4e7ed;
+  flex-shrink: 0;
 }
 
 .footer-left {

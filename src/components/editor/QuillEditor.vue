@@ -118,16 +118,38 @@ defineExpose({
 
 <style scoped>
 .quill-editor {
-  height: 100%;
+  height: auto;
   min-height: 300px;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 让编辑器内容区域自动撑开，不留多余空白 */
 :deep(.ql-container) {
   min-height: 250px;
   font-size: 14px;
+  flex: 1;
 }
 
 :deep(.ql-editor) {
   min-height: 250px;
+  height: auto !important;
+}
+
+/* 去除编辑器底部多余空白 */
+:deep(.ql-editor.ql-blank::before) {
+  font-style: normal;
+  color: #c0c4cc;
+}
+
+/* 确保工具栏和容器之间没有多余间距 */
+:deep(.ql-toolbar.ql-snow) {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+:deep(.ql-container.ql-snow) {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 </style>

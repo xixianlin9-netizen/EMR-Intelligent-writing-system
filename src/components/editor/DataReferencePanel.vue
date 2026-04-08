@@ -1,8 +1,9 @@
+<!-- src/components/editor/DataReferencePanel.vue -->
 <template>
   <el-card class="reference-panel" :body-style="{ padding: 0 }">
     <!-- 面板头部 -->
     <div class="panel-header">
-      <h3>数据引用</h3>
+      <h3>📋 数据引用</h3>
       <el-button 
         type="primary" 
         link 
@@ -16,7 +17,7 @@
     <!-- 选项卡 -->
     <el-tabs v-model="activeTab" class="reference-tabs">
       <!-- 医嘱选项卡 -->
-      <el-tab-pane label="医嘱" name="orders">
+      <el-tab-pane label="💊 医嘱" name="orders">
         <div class="tab-content">
           <el-input
             v-model="orderSearch"
@@ -51,7 +52,7 @@
       </el-tab-pane>
       
       <!-- 检验选项卡 -->
-      <el-tab-pane label="检验" name="lab">
+      <el-tab-pane label="🔬 检验" name="lab">
         <div class="tab-content">
           <el-select
             v-model="selectedLabDate"
@@ -59,6 +60,7 @@
             size="small"
             class="date-select"
             clearable
+            @change="onDateChange"
           >
             <el-option
               v-for="date in labDates"
@@ -68,6 +70,23 @@
             />
           </el-select>
           <el-scrollbar height="400px">
+            <!-- 报告信息卡片 - 优化版 -->
+            <div v-if="currentLabReport" class="lab-report-info">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">报告编号：</span>
+                  <span class="info-value">{{ currentLabReport.reportNo || '-' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">科室：</span>
+                  <span class="info-value">{{ currentLabReport.department || '-' }}</span>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">结论：</span>
+                  <span class="info-value conclusion-text">{{ currentLabReport.conclusion || '-' }}</span>
+                </div>
+              </div>
+            </div>
             <div 
               v-for="item in currentLabItems" 
               :key="item.id"
@@ -91,9 +110,11 @@
                     {{ item.flag === 'high' ? '↑' : item.flag === 'low' ? '↓' : '' }}
                   </el-tag>
                 </div>
-                <div class="item-value">
+                <div class="item-value" :class="getFlagClass(item.flag)">
                   {{ item.value }} {{ item.unit }}
-                  <span class="reference-range">({{ item.referenceRange }})</span>
+                </div>
+                <div class="item-desc">
+                  参考范围：{{ item.referenceRange }}
                 </div>
               </div>
             </div>
@@ -103,7 +124,7 @@
       </el-tab-pane>
       
       <!-- 影像选项卡 -->
-      <el-tab-pane label="影像" name="imaging">
+      <el-tab-pane label="🩻 影像" name="imaging">
         <div class="tab-content">
           <el-scrollbar height="400px">
             <div 
@@ -133,7 +154,7 @@
       </el-tab-pane>
       
       <!-- 模板选项卡 -->
-      <el-tab-pane label="模板" name="templates">
+      <el-tab-pane label="📝 模板" name="templates">
         <div class="tab-content">
           <el-input
             v-model="templateSearch"
@@ -212,12 +233,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useReferenceStore } from '@/stores/referenceStore'
-import storageService from '@/services/storageService'
-import { formatReferenceItem, getItemTypeName, getItemTypeTag, getPreviewText } from '@/utils/ruleEngine'
+import { formatReferenceItem, getItemTypeName, getItemTypeTag, getPreviewText, getItemSource } from '@/utils/ruleEngine'
 
 const emit = defineEmits(['insert'])
 
@@ -239,42 +259,54 @@ const selectedLabDate = ref('')
 const previewVisible = ref(false)
 const previewItems = ref([])
 
+// 响应式布局
+const isMobile = ref(false)
+
+// 从 store 获取数据
+const orders = computed(() => refStore.orders)
+const labResults = computed(() => refStore.labResults)
+const imagingReports = computed(() => refStore.imagingReports)
+const templates = computed(() => refStore.templates)
+
 // 过滤后的医嘱
 const filteredOrders = computed(() => {
-  if (!orderSearch.value) return refStore.orders
-  return refStore.orders.filter(item => 
+  if (!orderSearch.value) return orders.value
+  return orders.value.filter(item => 
     item.name.includes(orderSearch.value) || 
-    item.content.includes(orderSearch.value)
+    item.content?.includes(orderSearch.value)
   )
 })
 
 // 过滤后的模板
 const filteredTemplates = computed(() => {
-  if (!templateSearch.value) return refStore.templates
-  return refStore.templates.filter(item => 
+  if (!templateSearch.value) return templates.value
+  return templates.value.filter(item => 
     item.name.includes(templateSearch.value)
   )
 })
 
 // 检验日期列表
 const labDates = computed(() => {
-  return refStore.labResults.map(item => item.date)
+  return labResults.value.map(item => item.date)
+})
+
+// 当前选中的检验报告
+const currentLabReport = computed(() => {
+  if (!selectedLabDate.value && labResults.value.length > 0) {
+    selectedLabDate.value = labResults.value[0]?.date || ''
+  }
+  return labResults.value.find(item => item.date === selectedLabDate.value)
 })
 
 // 当前选中日期的检验项目
 const currentLabItems = computed(() => {
-  if (!selectedLabDate.value && refStore.labResults.length > 0) {
-    selectedLabDate.value = refStore.labResults[0].date
-  }
-  
-  if (!selectedLabDate.value) return []
-  
-  const labReport = refStore.labResults.find(item => item.date === selectedLabDate.value)
-  return labReport?.items || []
+  return currentLabReport.value?.items || []
 })
 
-// 影像报告列表
-const imagingReports = computed(() => refStore.imagingReports)
+// 日期变化时刷新
+function onDateChange() {
+  // 触发重新渲染
+}
 
 // 检查是否选中
 function isSelected(type, id) {
@@ -301,6 +333,18 @@ function clearAllSelections() {
 // 总选中数
 const totalSelected = computed(() => refStore.totalSelected)
 
+// 获取标记类型
+function getFlagType(flag) {
+  const map = { high: 'danger', low: 'warning', normal: 'success' }
+  return map[flag] || 'info'
+}
+
+function getFlagClass(flag) {
+  if (flag === 'high') return 'result-high'
+  if (flag === 'low') return 'result-low'
+  return ''
+}
+
 // 预览选中项
 function previewSelected() {
   previewItems.value = refStore.getSelectedItemsWithDetails()
@@ -317,28 +361,34 @@ function confirmInsert() {
 function insertSelected() {
   const items = refStore.getSelectedItemsWithDetails()
   if (items.length > 0) {
-    emit('insert', items)
+    // 格式化每个项目
+    const formattedItems = items.map(item => ({
+      ...item,
+      formattedText: formatReferenceItem(item)
+    }))
+    emit('insert', formattedItems)
     ElMessage.success(`已插入 ${items.length} 项`)
-    
-    // 可以选择是否清空选中
-    // refStore.clearAll()
   }
 }
 
-// 获取标记类型
-function getFlagType(flag) {
-  const map = {
-    high: 'danger',
-    low: 'warning',
-    normal: 'success'
-  }
-  return map[flag] || 'info'
+// 响应式布局处理
+function handleResize() {
+  const width = window.innerWidth
+  isMobile.value = width < 768
 }
 
 // 加载数据
 onMounted(async () => {
-  // 从 localStorage 加载数据
-  await refStore.loadMockData()
+  // 确保 store 中有数据
+  if (labResults.value.length === 0) {
+    refStore.loadMockData()
+  }
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -381,6 +431,65 @@ onMounted(async () => {
   padding: 0 5px;
 }
 
+/* 报告信息卡片样式 - 网格布局 */
+.lab-report-info {
+  margin-bottom: 12px;
+  padding: 0 5px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 12px;
+  background-color: #fafafa;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: baseline;
+  font-size: 13px;
+}
+
+.info-item.full-width {
+  grid-column: span 2;
+}
+
+.info-label {
+  color: #909399;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #303133;
+  font-weight: 500;
+  word-break: break-word;
+  flex: 1;
+}
+
+.conclusion-text {
+  color: #409eff;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .info-item.full-width {
+    grid-column: span 1;
+  }
+  
+  .info-label {
+    width: 65px;
+  }
+}
+
 .list-item {
   display: flex;
   align-items: flex-start;
@@ -419,6 +528,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .item-desc {
@@ -434,10 +544,14 @@ onMounted(async () => {
   margin-bottom: 4px;
 }
 
-.reference-range {
-  font-size: 12px;
-  color: #909399;
-  margin-left: 5px;
+.result-high {
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.result-low {
+  color: #e6a23c;
+  font-weight: bold;
 }
 
 .item-meta {
