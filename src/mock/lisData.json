@@ -7,7 +7,7 @@
       {
         "reportId": "LAB20260316001",
         "reportNo": "202603160001",
-        "patientId": "P001",
+        "patientId": "p001",
         "patientName": "张明",
         "patientAge": 45,
         "patientGender": "M",
@@ -20,6 +20,8 @@
         "doctor": "李敏",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "各项指标基本正常",
+        "suggestion": "建议定期体检",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 6.5, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 65, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "N", "method": "散射光法" },
@@ -27,14 +29,12 @@
           { "testCode": "HGB", "testName": "血红蛋白", "result": 135, "unit": "g/L", "referenceMin": 120, "referenceMax": 160, "abnormalFlag": "N", "method": "比色法" },
           { "testCode": "PLT", "testName": "血小板计数", "result": 220, "unit": "×10⁹/L", "referenceMin": 100, "referenceMax": 300, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 8.2, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "N", "method": "免疫比浊法" }
-        ],
-        "conclusion": "各项指标基本正常",
-        "suggestion": "建议定期体检"
+        ]
       },
       {
         "reportId": "LAB20260315002",
         "reportNo": "202603150002",
-        "patientId": "P002",
+        "patientId": "p002",
         "patientName": "李芳",
         "patientAge": 52,
         "patientGender": "F",
@@ -47,6 +47,8 @@
         "doctor": "陈强",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "血脂偏高，建议低脂饮食",
+        "suggestion": "建议控制饮食，定期复查血脂",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 7.2, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "RBC", "testName": "红细胞计数", "result": 4.2, "unit": "×10¹²/L", "referenceMin": 3.8, "referenceMax": 5.1, "abnormalFlag": "N", "method": "电阻抗法" },
@@ -54,14 +56,12 @@
           { "testCode": "TC", "testName": "总胆固醇", "result": 5.8, "unit": "mmol/L", "referenceMin": 0, "referenceMax": 5.2, "abnormalFlag": "H", "method": "酶法" },
           { "testCode": "TG", "testName": "甘油三酯", "result": 2.1, "unit": "mmol/L", "referenceMin": 0, "referenceMax": 1.7, "abnormalFlag": "H", "method": "酶法" },
           { "testCode": "LDL-C", "testName": "低密度脂蛋白", "result": 3.5, "unit": "mmol/L", "referenceMin": 0, "referenceMax": 3.4, "abnormalFlag": "H", "method": "酶法" }
-        ],
-        "conclusion": "血脂偏高，建议低脂饮食",
-        "suggestion": "建议控制饮食，定期复查血脂"
+        ]
       },
       {
         "reportId": "LAB20260314003",
         "reportNo": "202603140003",
-        "patientId": "P003",
+        "patientId": "p003",
         "patientName": "王建国",
         "patientAge": 63,
         "patientGender": "M",
@@ -74,20 +74,20 @@
         "doctor": "赵敏",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "血糖控制不佳，肝功能轻度异常",
+        "suggestion": "建议调整降糖方案，完善肝脏超声检查",
         "items": [
           { "testCode": "GLU", "testName": "空腹血糖", "result": 8.5, "unit": "mmol/L", "referenceMin": 3.9, "referenceMax": 6.1, "abnormalFlag": "H", "method": "葡萄糖氧化酶法" },
           { "testCode": "HbA1c", "testName": "糖化血红蛋白", "result": 7.8, "unit": "%", "referenceMin": 4.0, "referenceMax": 6.0, "abnormalFlag": "H", "method": "高效液相色谱法" },
           { "testCode": "ALT", "testName": "丙氨酸氨基转移酶", "result": 45, "unit": "U/L", "referenceMin": 9, "referenceMax": 50, "abnormalFlag": "N", "method": "速率法" },
           { "testCode": "AST", "testName": "天门冬氨酸氨基转移酶", "result": 42, "unit": "U/L", "referenceMin": 15, "referenceMax": 40, "abnormalFlag": "H", "method": "速率法" },
           { "testCode": "CREA", "testName": "肌酐", "result": 85, "unit": "μmol/L", "referenceMin": 44, "referenceMax": 104, "abnormalFlag": "N", "method": "酶法" }
-        ],
-        "conclusion": "血糖控制不佳，肝功能轻度异常",
-        "suggestion": "建议调整降糖方案，完善肝脏超声检查"
+        ]
       },
       {
         "reportId": "LAB20260313004",
         "reportNo": "202603130004",
-        "patientId": "P004",
+        "patientId": "p004",
         "patientName": "刘秀英",
         "patientAge": 71,
         "patientGender": "F",
@@ -100,19 +100,19 @@
         "doctor": "孙立",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "血常规及凝血功能未见明显异常",
+        "suggestion": "继续目前治疗方案",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 8.5, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "HGB", "testName": "血红蛋白", "result": 118, "unit": "g/L", "referenceMin": 115, "referenceMax": 150, "abnormalFlag": "N", "method": "比色法" },
           { "testCode": "PLT", "testName": "血小板计数", "result": 185, "unit": "×10⁹/L", "referenceMin": 100, "referenceMax": 300, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "PT", "testName": "凝血酶原时间", "result": 13.5, "unit": "秒", "referenceMin": 11.0, "referenceMax": 14.0, "abnormalFlag": "N", "method": "凝固法" }
-        ],
-        "conclusion": "血常规及凝血功能未见明显异常",
-        "suggestion": "继续目前治疗方案"
+        ]
       },
       {
         "reportId": "LAB20260312005",
         "reportNo": "202603120005",
-        "patientId": "P005",
+        "patientId": "p005",
         "patientName": "陈志远",
         "patientAge": 34,
         "patientGender": "M",
@@ -125,19 +125,19 @@
         "doctor": "周强",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "炎症指标升高，提示存在感染",
+        "suggestion": "建议抗感染治疗，复查炎症指标",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 9.2, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 72, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "H", "method": "散射光法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 15.6, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "H", "method": "免疫比浊法" },
           { "testCode": "ESR", "testName": "血沉", "result": 28, "unit": "mm/h", "referenceMin": 0, "referenceMax": 15, "abnormalFlag": "H", "method": "魏氏法" }
-        ],
-        "conclusion": "炎症指标升高，提示存在感染",
-        "suggestion": "建议抗感染治疗，复查炎症指标"
+        ]
       },
       {
         "reportId": "LAB20260311006",
         "reportNo": "202603110006",
-        "patientId": "P006",
+        "patientId": "p006",
         "patientName": "赵丽华",
         "patientAge": 28,
         "patientGender": "F",
@@ -150,19 +150,19 @@
         "doctor": "吴晓",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "缺铁性贫血",
+        "suggestion": "建议补充铁剂，增加富含铁食物摄入",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 7.8, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "HGB", "testName": "血红蛋白", "result": 108, "unit": "g/L", "referenceMin": 115, "referenceMax": 150, "abnormalFlag": "L", "method": "比色法" },
           { "testCode": "HCT", "testName": "红细胞压积", "result": 32, "unit": "%", "referenceMin": 35, "referenceMax": 45, "abnormalFlag": "L", "method": "计算法" },
           { "testCode": "Ferritin", "testName": "铁蛋白", "result": 12, "unit": "μg/L", "referenceMin": 20, "referenceMax": 200, "abnormalFlag": "L", "method": "化学发光法" }
-        ],
-        "conclusion": "缺铁性贫血",
-        "suggestion": "建议补充铁剂，增加富含铁食物摄入"
+        ]
       },
       {
         "reportId": "LAB20260310007",
         "reportNo": "202603100007",
-        "patientId": "P007",
+        "patientId": "p007",
         "patientName": "孙德明",
         "patientAge": 57,
         "patientGender": "M",
@@ -175,19 +175,19 @@
         "doctor": "郑伟",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "细菌感染可能性大",
+        "suggestion": "建议使用抗生素治疗，完善病原学检查",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 11.2, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "H", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 82, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "H", "method": "散射光法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 45.3, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "H", "method": "免疫比浊法" },
           { "testCode": "PCT", "testName": "降钙素原", "result": 0.8, "unit": "ng/mL", "referenceMin": null, "referenceMax": 0.5, "abnormalFlag": "H", "method": "化学发光法" }
-        ],
-        "conclusion": "细菌感染可能性大",
-        "suggestion": "建议使用抗生素治疗，完善病原学检查"
+        ]
       },
       {
         "reportId": "LAB20260309008",
         "reportNo": "202603090008",
-        "patientId": "P008",
+        "patientId": "p008",
         "patientName": "周美玲",
         "patientAge": 41,
         "patientGender": "F",
@@ -200,19 +200,19 @@
         "doctor": "王丽",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "肾功能不全，高尿酸血症",
+        "suggestion": "建议肾内科专科治疗，控制尿酸",
         "items": [
           { "testCode": "CREA", "testName": "肌酐", "result": 156, "unit": "μmol/L", "referenceMin": 44, "referenceMax": 104, "abnormalFlag": "H", "method": "酶法" },
           { "testCode": "BUN", "testName": "尿素氮", "result": 12.5, "unit": "mmol/L", "referenceMin": 2.9, "referenceMax": 8.2, "abnormalFlag": "H", "method": "酶法" },
           { "testCode": "UA", "testName": "尿酸", "result": 520, "unit": "μmol/L", "referenceMin": 155, "referenceMax": 357, "abnormalFlag": "H", "method": "尿酸酶法" },
           { "testCode": "K", "testName": "钾", "result": 5.8, "unit": "mmol/L", "referenceMin": 3.5, "referenceMax": 5.5, "abnormalFlag": "H", "method": "离子选择电极法" }
-        ],
-        "conclusion": "肾功能不全，高尿酸血症",
-        "suggestion": "建议肾内科专科治疗，控制尿酸"
+        ]
       },
       {
         "reportId": "LAB20260308009",
         "reportNo": "202603080009",
-        "patientId": "P009",
+        "patientId": "p009",
         "patientName": "吴志强",
         "patientAge": 68,
         "patientGender": "M",
@@ -225,18 +225,18 @@
         "doctor": "刘强",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "心肌损伤，心力衰竭",
+        "suggestion": "建议心内科住院治疗",
         "items": [
           { "testCode": "CK-MB", "testName": "肌酸激酶同工酶", "result": 28, "unit": "U/L", "referenceMin": 0, "referenceMax": 24, "abnormalFlag": "H", "method": "免疫抑制法" },
           { "testCode": "cTnI", "testName": "肌钙蛋白I", "result": 0.15, "unit": "μg/L", "referenceMin": 0, "referenceMax": 0.04, "abnormalFlag": "H", "method": "化学发光法" },
           { "testCode": "NT-proBNP", "testName": "N末端前脑钠肽", "result": 1250, "unit": "pg/mL", "referenceMin": 0, "referenceMax": 300, "abnormalFlag": "H", "method": "电化学发光法" }
-        ],
-        "conclusion": "心肌损伤，心力衰竭",
-        "suggestion": "建议心内科住院治疗"
+        ]
       },
       {
         "reportId": "LAB20260307010",
         "reportNo": "202603070010",
-        "patientId": "P010",
+        "patientId": "p010",
         "patientName": "郑淑芬",
         "patientAge": 39,
         "patientGender": "F",
@@ -249,19 +249,19 @@
         "doctor": "张敏",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "类风湿关节炎活动期",
+        "suggestion": "建议风湿免疫科专科治疗",
         "items": [
           { "testCode": "ESR", "testName": "血沉", "result": 65, "unit": "mm/h", "referenceMin": 0, "referenceMax": 20, "abnormalFlag": "H", "method": "魏氏法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 32.5, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "H", "method": "免疫比浊法" },
           { "testCode": "RF", "testName": "类风湿因子", "result": 85, "unit": "IU/mL", "referenceMin": 0, "referenceMax": 20, "abnormalFlag": "H", "method": "免疫比浊法" },
           { "testCode": "anti-CCP", "testName": "抗环瓜氨酸肽抗体", "result": 120, "unit": "U/mL", "referenceMin": 0, "referenceMax": 25, "abnormalFlag": "H", "method": "ELISA" }
-        ],
-        "conclusion": "类风湿关节炎活动期",
-        "suggestion": "建议风湿免疫科专科治疗"
+        ]
       },
       {
         "reportId": "LAB20260306011",
         "reportNo": "202603060011",
-        "patientId": "P011",
+        "patientId": "p011",
         "patientName": "林志华",
         "patientAge": 47,
         "patientGender": "M",
@@ -274,18 +274,18 @@
         "doctor": "陈锋",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "急性细菌感染",
+        "suggestion": "建议强效抗感染治疗",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 13.8, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "H", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 88, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "H", "method": "散射光法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 98.6, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "H", "method": "免疫比浊法" }
-        ],
-        "conclusion": "急性细菌感染",
-        "suggestion": "建议强效抗感染治疗"
+        ]
       },
       {
         "reportId": "LAB20260305012",
         "reportNo": "202603050012",
-        "patientId": "P012",
+        "patientId": "p012",
         "patientName": "黄玉英",
         "patientAge": 65,
         "patientGender": "F",
@@ -298,18 +298,18 @@
         "doctor": "王静",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "甲状腺功能亢进症",
+        "suggestion": "建议抗甲状腺药物治疗",
         "items": [
           { "testCode": "TSH", "testName": "促甲状腺激素", "result": 0.08, "unit": "mIU/L", "referenceMin": 0.35, "referenceMax": 4.94, "abnormalFlag": "L", "method": "化学发光法" },
           { "testCode": "FT3", "testName": "游离T3", "result": 12.5, "unit": "pmol/L", "referenceMin": 3.5, "referenceMax": 6.5, "abnormalFlag": "H", "method": "化学发光法" },
           { "testCode": "FT4", "testName": "游离T4", "result": 35.2, "unit": "pmol/L", "referenceMin": 11.5, "referenceMax": 22.7, "abnormalFlag": "H", "method": "化学发光法" }
-        ],
-        "conclusion": "甲状腺功能亢进症",
-        "suggestion": "建议抗甲状腺药物治疗"
+        ]
       },
       {
         "reportId": "LAB20260304013",
         "reportNo": "202603040013",
-        "patientId": "P013",
+        "patientId": "p013",
         "patientName": "徐天佑",
         "patientAge": 31,
         "patientGender": "M",
@@ -322,18 +322,18 @@
         "doctor": "李建国",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "急性阑尾炎可能性大",
+        "suggestion": "建议急诊手术",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 14.2, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "H", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 86, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "H", "method": "散射光法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 75.8, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "H", "method": "免疫比浊法" }
-        ],
-        "conclusion": "急性阑尾炎可能性大",
-        "suggestion": "建议急诊手术"
+        ]
       },
       {
         "reportId": "LAB20260303014",
         "reportNo": "202603030014",
-        "patientId": "P014",
+        "patientId": "p014",
         "patientName": "沈小燕",
         "patientAge": 26,
         "patientGender": "F",
@@ -346,17 +346,17 @@
         "doctor": "杨敏",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "过敏反应",
+        "suggestion": "建议抗过敏治疗",
         "items": [
           { "testCode": "EOS%", "testName": "嗜酸性粒细胞百分比", "result": 12, "unit": "%", "referenceMin": 0.5, "referenceMax": 5, "abnormalFlag": "H", "method": "散射光法" },
           { "testCode": "IgE", "testName": "免疫球蛋白E", "result": 350, "unit": "IU/mL", "referenceMin": 0, "referenceMax": 100, "abnormalFlag": "H", "method": "免疫比浊法" }
-        ],
-        "conclusion": "过敏反应",
-        "suggestion": "建议抗过敏治疗"
+        ]
       },
       {
         "reportId": "LAB20260302015",
         "reportNo": "202603020015",
-        "patientId": "P015",
+        "patientId": "p015",
         "patientName": "韩德江",
         "patientAge": 59,
         "patientGender": "M",
@@ -369,17 +369,17 @@
         "doctor": "张力",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "轻度炎症反应",
+        "suggestion": "预防性抗感染治疗",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 10.5, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "H", "method": "电阻抗法" },
           { "testCode": "NEUT%", "testName": "中性粒细胞百分比", "result": 78, "unit": "%", "referenceMin": 50, "referenceMax": 70, "abnormalFlag": "H", "method": "散射光法" }
-        ],
-        "conclusion": "轻度炎症反应",
-        "suggestion": "预防性抗感染治疗"
+        ]
       },
       {
         "reportId": "LAB20260301016",
         "reportNo": "202603010016",
-        "patientId": "P016",
+        "patientId": "p016",
         "patientName": "彭玉珍",
         "patientAge": 73,
         "patientGender": "F",
@@ -392,17 +392,17 @@
         "doctor": "陈丽",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "营养不良",
+        "suggestion": "建议营养支持治疗",
         "items": [
           { "testCode": "ALB", "testName": "白蛋白", "result": 32, "unit": "g/L", "referenceMin": 35, "referenceMax": 55, "abnormalFlag": "L", "method": "溴甲酚绿法" },
           { "testCode": "PA", "testName": "前白蛋白", "result": 0.15, "unit": "g/L", "referenceMin": 0.2, "referenceMax": 0.4, "abnormalFlag": "L", "method": "免疫比浊法" }
-        ],
-        "conclusion": "营养不良",
-        "suggestion": "建议营养支持治疗"
+        ]
       },
       {
         "reportId": "LAB20260228017",
         "reportNo": "202602280017",
-        "patientId": "P017",
+        "patientId": "p017",
         "patientName": "曾繁兴",
         "patientAge": 42,
         "patientGender": "M",
@@ -415,17 +415,17 @@
         "doctor": "黄伟",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "尿路感染，镜下血尿",
+        "suggestion": "建议抗感染治疗",
         "items": [
           { "testCode": "RBC", "testName": "尿红细胞", "result": 25, "unit": "/HPF", "referenceMin": 0, "referenceMax": 3, "abnormalFlag": "H", "method": "显微镜检查" },
           { "testCode": "WBC", "testName": "尿白细胞", "result": 15, "unit": "/HPF", "referenceMin": 0, "referenceMax": 5, "abnormalFlag": "H", "method": "显微镜检查" }
-        ],
-        "conclusion": "尿路感染，镜下血尿",
-        "suggestion": "建议抗感染治疗"
+        ]
       },
       {
         "reportId": "LAB20260227018",
         "reportNo": "202602270018",
-        "patientId": "P018",
+        "patientId": "p018",
         "patientName": "蔡美华",
         "patientAge": 36,
         "patientGender": "F",
@@ -438,17 +438,17 @@
         "doctor": "刘敏",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "白细胞减少，血小板减少",
+        "suggestion": "建议血液科进一步诊治",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 3.2, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "L", "method": "电阻抗法" },
           { "testCode": "PLT", "testName": "血小板计数", "result": 85, "unit": "×10⁹/L", "referenceMin": 100, "referenceMax": 300, "abnormalFlag": "L", "method": "电阻抗法" }
-        ],
-        "conclusion": "白细胞减少，血小板减少",
-        "suggestion": "建议血液科进一步诊治"
+        ]
       },
       {
         "reportId": "LAB20260226019",
         "reportNo": "202602260019",
-        "patientId": "P019",
+        "patientId": "p019",
         "patientName": "魏志国",
         "patientAge": 54,
         "patientGender": "M",
@@ -461,17 +461,17 @@
         "doctor": "张华",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "肿瘤标志物升高",
+        "suggestion": "建议完善影像学检查",
         "items": [
           { "testCode": "AFP", "testName": "甲胎蛋白", "result": 320, "unit": "μg/L", "referenceMin": 0, "referenceMax": 7, "abnormalFlag": "H", "method": "化学发光法" },
           { "testCode": "CEA", "testName": "癌胚抗原", "result": 25.6, "unit": "μg/L", "referenceMin": 0, "referenceMax": 5, "abnormalFlag": "H", "method": "化学发光法" }
-        ],
-        "conclusion": "肿瘤标志物升高",
-        "suggestion": "建议完善影像学检查"
+        ]
       },
       {
         "reportId": "LAB20260225020",
         "reportNo": "202602250020",
-        "patientId": "P020",
+        "patientId": "p020",
         "patientName": "欧阳雪",
         "patientAge": 23,
         "patientGender": "F",
@@ -484,14 +484,14 @@
         "doctor": "王磊",
         "reviewer": "王华",
         "status": "已审核",
+        "conclusion": "各项指标基本正常",
+        "suggestion": "建议休息，多饮水",
         "items": [
           { "testCode": "WBC", "testName": "白细胞计数", "result": 6.8, "unit": "×10⁹/L", "referenceMin": 4.0, "referenceMax": 10.0, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "HGB", "testName": "血红蛋白", "result": 125, "unit": "g/L", "referenceMin": 115, "referenceMax": 150, "abnormalFlag": "N", "method": "比色法" },
           { "testCode": "PLT", "testName": "血小板计数", "result": 210, "unit": "×10⁹/L", "referenceMin": 100, "referenceMax": 300, "abnormalFlag": "N", "method": "电阻抗法" },
           { "testCode": "CRP", "testName": "C反应蛋白", "result": 5.2, "unit": "mg/L", "referenceMin": null, "referenceMax": 10.0, "abnormalFlag": "N", "method": "免疫比浊法" }
-        ],
-        "conclusion": "各项指标基本正常",
-        "suggestion": "建议休息，多饮水"
+        ]
       }
     ]
   }

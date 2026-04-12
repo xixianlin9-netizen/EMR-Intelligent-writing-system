@@ -2,9 +2,10 @@
 <template>
   <div class="emr-editor">
     <el-row :gutter="20">
-      <!-- 左侧引用面板 -->
+      <!-- 左侧引用面板 - 传递当前患者ID -->
       <el-col :span="6">
         <DataReferencePanel 
+          :patient-id="currentPatient?.id"
           @insert="handleInsert"
         />
       </el-col>

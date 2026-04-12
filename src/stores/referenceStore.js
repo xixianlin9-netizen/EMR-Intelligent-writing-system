@@ -28,19 +28,24 @@ export const useReferenceStore = defineStore('reference', () => {
         orders.value = storageService.getOrders()
         console.log('医嘱数据:', orders.value.length, '条')
         
-        // 加载检验数据 - 关键修复：转换格式
+        // 加载检验数据 - 保留患者信息
         const rawLabResults = storageService.getLabResults()
-        console.log('原始检验数据:', rawLabResults)
+        console.log('原始检验数据:', rawLabResults.length, '条')
         
-        // 转换数据格式以匹配组件期望
+        // 转换检验数据格式，保留患者ID和姓名
         labResults.value = rawLabResults.map(report => ({
             id: report.reportId,
             reportNo: report.reportNo,
             date: report.reportDate ? report.reportDate.split(' ')[0] : '',
             dateTime: report.reportDate,
+            patientId: report.patientId,        // 关键：保留患者ID
+            patientName: report.patientName,    // 关键：保留患者姓名
+            patientAge: report.patientAge,
+            patientGender: report.patientGender,
             department: report.department,
             doctor: report.doctor,
             conclusion: report.conclusion,
+            suggestion: report.suggestion,
             items: (report.items || []).map(item => ({
                 id: `${report.reportId}_${item.testCode}`,
                 itemName: item.testName,
@@ -53,15 +58,62 @@ export const useReferenceStore = defineStore('reference', () => {
             }))
         }))
         
-        console.log('转换后的检验数据:', labResults.value)
+        console.log('转换后的检验数据:', labResults.value.length, '条')
         
-        // 加载影像数据
-        imagingReports.value = storageService.getImagingReports()
-        console.log('影像数据:', imagingReports.value.length, '条')
+        // 加载影像数据 - 保留患者信息
+        const rawImagingReports = storageService.getImagingReports()
+        console.log('原始影像数据:', rawImagingReports.length, '条')
+        
+        // 转换影像数据格式，保留患者ID和姓名
+        imagingReports.value = rawImagingReports.map(report => ({
+            id: report.id,
+            patientId: report.patientId,        // 关键：保留患者ID
+            patientName: report.patientName,    // 关键：保留患者姓名
+            date: report.date,
+            modality: report.modality,
+            modalityName: report.modalityName || getModalityName(report.modality),
+            bodyPart: report.bodyPart,
+            bodyPartName: report.bodyPartName || report.bodyPart,
+            finding: report.finding,
+            impression: report.impression,
+            recommendation: report.recommendation,
+            department: report.department,
+            reportDoctor: report.reportDoctor,
+            reviewer: report.reviewer,
+            status: report.status
+        }))
+        
+        console.log('转换后的影像数据:', imagingReports.value.length, '条')
         
         // 加载模板数据
         templates.value = storageService.getTemplates()
         console.log('模板数据:', templates.value.length, '条')
+    }
+    
+    // 获取 modality 中文名称
+    function getModalityName(modality) {
+        const map = {
+            'CT': '计算机断层扫描',
+            'MRI': '磁共振成像',
+            'XR': 'X线摄影',
+            'US': '超声检查',
+            'ECG': '心电图',
+            'PET': '正电子发射断层扫描',
+            'MG': '乳腺摄影'
+        }
+        return map[modality] || modality
+    }
+    
+    // 根据患者ID获取检验数据
+    function getLabResultsByPatientId(patientId) {
+        if (!patientId) return []
+        return labResults.value.filter(report => report.patientId === patientId)
+    }
+    
+    // 根据患者ID获取影像数据
+    function getImagingReportsByPatientId(patientId) {
+        if (!patientId) return []
+        return imagingReports.value.filter(report => report.patientId === patientId)
     }
     
     // 切换选中
@@ -105,8 +157,11 @@ export const useReferenceStore = defineStore('reference', () => {
                         date: report.date,
                         reportId: report.id,
                         reportNo: report.reportNo,
+                        patientId: report.patientId,
+                        patientName: report.patientName,
                         department: report.department,
-                        doctor: report.doctor
+                        doctor: report.doctor,
+                        conclusion: report.conclusion
                     })
                     break
                 }
@@ -116,7 +171,11 @@ export const useReferenceStore = defineStore('reference', () => {
         // 影像
         selectedImaging.value.forEach(id => {
             const item = imagingReports.value.find(i => i.id === id)
-            if (item) items.push({ ...item, type: 'imaging' })
+            if (item) items.push({ 
+                ...item, 
+                type: 'imaging',
+                formattedText: formatImagingText(item)
+            })
         })
         
         // 模板
@@ -126,6 +185,15 @@ export const useReferenceStore = defineStore('reference', () => {
         })
         
         return items
+    }
+    
+    // 格式化影像文本（用于插入编辑器）
+    function formatImagingText(item) {
+        if (!item) return ''
+        return `【影像检查】${item.modalityName || item.modality} - ${item.bodyPartName || item.bodyPart}\n` +
+               `影像所见：${item.finding}\n` +
+               `诊断印象：${item.impression}\n` +
+               `建议：${item.recommendation || '结合临床'}`
     }
     
     // 总选中数
@@ -144,7 +212,14 @@ export const useReferenceStore = defineStore('reference', () => {
         selectedTemplates.value = []
     }
     
+    // 重置所有数据（用于模式切换后）
+    function reset() {
+        clearAll()
+        activeTab.value = 'orders'
+    }
+    
     return {
+        // 状态
         orders,
         labResults,
         imagingReports,
@@ -154,10 +229,21 @@ export const useReferenceStore = defineStore('reference', () => {
         selectedImaging,
         selectedTemplates,
         activeTab,
+        
+        // 计算属性
         totalSelected,
+        
+        // 方法
         loadMockData,
+        getLabResultsByPatientId,
+        getImagingReportsByPatientId,
         toggleSelection,
         getSelectedItemsWithDetails,
-        clearAll
+        clearAll,
+        reset,
+        
+        // 辅助函数
+        getModalityName,
+        formatImagingText
     }
 })

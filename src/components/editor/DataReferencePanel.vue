@@ -16,9 +16,10 @@
     
     <!-- 选项卡 -->
     <el-tabs v-model="activeTab" class="reference-tabs">
-      <!-- 医嘱选项卡 -->
+      <!-- ==================== 医嘱选项卡 ==================== -->
       <el-tab-pane label="💊 医嘱" name="orders">
         <div class="tab-content">
+          <!-- 搜索框 -->
           <el-input
             v-model="orderSearch"
             placeholder="搜索医嘱..."
@@ -27,6 +28,24 @@
             class="search-input"
             clearable
           />
+          
+          <!-- 分类筛选 -->
+          <el-select 
+            v-model="selectedCategory" 
+            placeholder="选择分类" 
+            size="small" 
+            clearable
+            class="category-select"
+          >
+            <el-option label="全部分类" value="" />
+            <el-option label="💊 西药" value="medication" />
+            <el-option label="💉 输液治疗" value="treatment" />
+            <el-option label="🔬 实验室检查" value="examination" />
+            <el-option label="🩺 护理操作" value="nursing" />
+            <el-option label="🍽️ 饮食指导" value="diet" />
+            <el-option label="📋 医嘱建议" value="advice" />
+          </el-select>
+          
           <el-scrollbar height="400px">
             <div 
               v-for="item in filteredOrders" 
@@ -41,9 +60,18 @@
                 @change="() => toggleSelection('orders', item.id)"
               />
               <div class="item-content">
-                <div class="item-name">{{ item.name }}</div>
+                <div class="item-name">
+                  {{ item.name }}
+                  <el-tag size="small" :type="getCategoryTagType(item.category)" class="category-tag">
+                    {{ getCategoryName(item.category) }}
+                  </el-tag>
+                </div>
                 <div class="item-desc">{{ item.description || item.content }}</div>
-                <el-tag size="small" type="info">{{ item.category }}</el-tag>
+                <div class="item-meta" v-if="item.dosage || item.frequency">
+                  <span v-if="item.dosage">💊 {{ item.dosage }}</span>
+                  <span v-if="item.frequency">⏰ {{ getFrequencyText(item.frequency) }}</span>
+                  <span v-if="item.route">💉 {{ getRouteText(item.route) }}</span>
+                </div>
               </div>
             </div>
             <el-empty v-if="filteredOrders.length === 0" description="暂无医嘱" />
@@ -51,42 +79,90 @@
         </div>
       </el-tab-pane>
       
-      <!-- 检验选项卡 -->
+      <!-- ==================== 检验选项卡 ==================== -->
       <el-tab-pane label="🔬 检验" name="lab">
         <div class="tab-content">
+          <!-- 当前患者提示 -->
+          <div class="current-patient-info" v-if="currentPatient">
+            <el-alert 
+              :title="`当前患者：${currentPatient.name} (ID: ${currentPatient.id})`" 
+              type="info" 
+              :closable="false"
+              show-icon
+            />
+            <div v-if="currentPatient.id?.startsWith('op') && filteredLabResults.length > 0" class="data-source-tip">
+              <el-text size="small" type="info">（检验数据来源于住院记录）</el-text>
+            </div>
+          </div>
+          <div class="current-patient-info" v-else-if="props.patientId">
+            <el-alert 
+              title="正在加载患者信息..." 
+              type="info" 
+              :closable="false"
+              show-icon
+            />
+          </div>
+          <div class="current-patient-info" v-else>
+            <el-alert 
+              title="请先从患者列表选择患者" 
+              type="warning" 
+              :closable="false"
+              show-icon
+            />
+          </div>
+          
+          <!-- 日期选择 - 仅当有数据时显示 -->
           <el-select
+            v-if="filteredLabDates.length > 0"
             v-model="selectedLabDate"
-            placeholder="选择日期"
+            placeholder="选择检查日期"
             size="small"
             class="date-select"
             clearable
             @change="onDateChange"
           >
             <el-option
-              v-for="date in labDates"
+              v-for="date in filteredLabDates"
               :key="date"
               :label="date"
               :value="date"
             />
           </el-select>
+          
           <el-scrollbar height="400px">
-            <!-- 报告信息卡片 - 优化版 -->
-            <div v-if="currentLabReport" class="lab-report-info">
+            <!-- 无患者数据提示 -->
+            <div v-if="!props.patientId && !currentPatient" class="empty-tip">
+              <el-empty description="请先从患者列表选择患者" />
+            </div>
+            
+            <!-- 有患者但无检验数据 -->
+            <div v-else-if="filteredLabResults.length === 0" class="empty-tip">
+              <el-empty description="该患者暂无检验数据" />
+            </div>
+            
+            <!-- 显示检验报告信息 -->
+            <div v-else-if="currentLabReport" class="lab-report-info">
               <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">患者姓名：</span>
+                  <span class="info-value">{{ currentLabReport.patientName || '-' }}</span>
+                </div>
                 <div class="info-item">
                   <span class="info-label">报告编号：</span>
                   <span class="info-value">{{ currentLabReport.reportNo || '-' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">科室：</span>
+                  <span class="info-label">检查科室：</span>
                   <span class="info-value">{{ currentLabReport.department || '-' }}</span>
                 </div>
                 <div class="info-item full-width">
-                  <span class="info-label">结论：</span>
+                  <span class="info-label">诊断结论：</span>
                   <span class="info-value conclusion-text">{{ currentLabReport.conclusion || '-' }}</span>
                 </div>
               </div>
             </div>
+            
+            <!-- 检验项目列表 -->
             <div 
               v-for="item in currentLabItems" 
               :key="item.id"
@@ -118,17 +194,56 @@
                 </div>
               </div>
             </div>
-            <el-empty v-if="currentLabItems.length === 0" description="暂无检验数据" />
           </el-scrollbar>
         </div>
       </el-tab-pane>
       
-      <!-- 影像选项卡 -->
+      <!-- ==================== 影像选项卡 ==================== -->
       <el-tab-pane label="🩻 影像" name="imaging">
         <div class="tab-content">
+          <!-- 当前患者提示 -->
+          <div class="current-patient-info" v-if="currentPatient">
+            <el-alert 
+              :title="`当前患者：${currentPatient.name} (ID: ${currentPatient.id})`" 
+              type="info" 
+              :closable="false"
+              show-icon
+            />
+            <div v-if="currentPatient.id?.startsWith('op') && filteredImagingReports.length > 0" class="data-source-tip">
+                <el-text size="small" type="success">(已关联患者历史影像数据)</el-text>
+            </div>
+          </div>
+          <div class="current-patient-info" v-else-if="props.patientId">
+            <el-alert 
+              title="正在加载患者信息..." 
+              type="info" 
+              :closable="false"
+              show-icon
+            />
+          </div>
+          <div class="current-patient-info" v-else>
+            <el-alert 
+              title="请先从患者列表选择患者" 
+              type="warning" 
+              :closable="false"
+              show-icon
+            />
+          </div>
+          
           <el-scrollbar height="400px">
+            <!-- 无患者数据提示 -->
+            <div v-if="!props.patientId && !currentPatient" class="empty-tip">
+              <el-empty description="请先从患者列表选择患者" />
+            </div>
+            
+            <!-- 有患者但无影像数据 -->
+            <div v-else-if="filteredImagingReports.length === 0" class="empty-tip">
+              <el-empty description="该患者暂无影像数据" />
+            </div>
+            
+            <!-- 影像报告列表 -->
             <div 
-              v-for="item in imagingReports" 
+              v-for="item in filteredImagingReports" 
               :key="item.id"
               class="list-item"
               :class="{ 'is-selected': isSelected('imaging', item.id) }"
@@ -140,20 +255,27 @@
                 @change="() => toggleSelection('imaging', item.id)"
               />
               <div class="item-content">
-                <div class="item-name">{{ item.modality }} - {{ item.bodyPart }}</div>
+                <div class="item-name">
+                  {{ item.modalityName || item.modality }} - {{ item.bodyPartName || item.bodyPart }}
+                  <el-tag size="small" :type="getModalityTagType(item.modality)" class="modality-tag">
+                    {{ item.modality }}
+                  </el-tag>
+                </div>
                 <div class="item-desc">{{ item.finding }}</div>
                 <div class="item-meta">
-                  <span>{{ item.date }}</span>
+                  <span>📅 {{ item.date }}</span>
                   <el-tag size="small" type="success">{{ item.impression }}</el-tag>
+                </div>
+                <div class="item-recommendation" v-if="item.recommendation">
+                  💡 建议：{{ item.recommendation }}
                 </div>
               </div>
             </div>
-            <el-empty v-if="imagingReports.length === 0" description="暂无影像数据" />
           </el-scrollbar>
         </div>
       </el-tab-pane>
       
-      <!-- 模板选项卡 -->
+      <!-- ==================== 模板选项卡 ==================== -->
       <el-tab-pane label="📝 模板" name="templates">
         <div class="tab-content">
           <el-input
@@ -188,7 +310,7 @@
       </el-tab-pane>
     </el-tabs>
     
-    <!-- 底部操作栏 -->
+    <!-- ==================== 底部操作栏 ==================== -->
     <div class="panel-footer">
       <div class="selected-count">
         已选中 <span class="count-number">{{ totalSelected }}</span> 项
@@ -213,7 +335,7 @@
       </div>
     </div>
     
-    <!-- 预览对话框 -->
+    <!-- ==================== 预览对话框 ==================== -->
     <el-dialog v-model="previewVisible" title="引用预览" width="500px">
       <div class="preview-content">
         <div v-for="(item, index) in previewItems" :key="index" class="preview-item">
@@ -237,12 +359,21 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useReferenceStore } from '@/stores/referenceStore'
+import { usePatientStore } from '@/stores/patientStore'
 import { formatReferenceItem, getItemTypeName, getItemTypeTag, getPreviewText, getItemSource } from '@/utils/ruleEngine'
+
+const props = defineProps({
+  patientId: {
+    type: String,
+    default: null
+  }
+})
 
 const emit = defineEmits(['insert'])
 
 // 使用store
 const refStore = useReferenceStore()
+const patientStore = usePatientStore()
 
 // 当前激活的选项卡
 const activeTab = computed({
@@ -254,6 +385,7 @@ const activeTab = computed({
 const orderSearch = ref('')
 const templateSearch = ref('')
 const selectedLabDate = ref('')
+const selectedCategory = ref('')  // 医嘱分类筛选
 
 // 预览相关
 const previewVisible = ref(false)
@@ -264,19 +396,138 @@ const isMobile = ref(false)
 
 // 从 store 获取数据
 const orders = computed(() => refStore.orders)
-const labResults = computed(() => refStore.labResults)
-const imagingReports = computed(() => refStore.imagingReports)
+const allLabResults = computed(() => refStore.labResults)
+const allImagingReports = computed(() => refStore.imagingReports)
 const templates = computed(() => refStore.templates)
 
-// 过滤后的医嘱
-const filteredOrders = computed(() => {
-  if (!orderSearch.value) return orders.value
-  return orders.value.filter(item => 
-    item.name.includes(orderSearch.value) || 
-    item.content?.includes(orderSearch.value)
+// 当前患者信息
+const currentPatient = computed(() => patientStore.currentPatient)
+
+// 获取当前有效的患者ID（优先使用 props，其次使用 store 中的当前患者）
+const effectivePatientId = computed(() => {
+  return props.patientId || currentPatient.value?.id || null
+})
+
+// 患者ID映射（门诊ID -> 住院ID）
+const patientIdMap = {
+  'op001': 'p001',  // 张明
+  'op002': 'p002',  // 李芳
+  'op003': 'p003',  // 王伟 -> 王建国
+  'op004': 'p004',  // 刘洋 -> 刘秀英
+  'op005': 'p005',  // 陈志远
+  'op006': 'p006',  // 赵丽华
+  'op007': 'p007'   // 孙德明
+}
+
+// 获取对应的住院ID
+function getInpatientId(patientId) {
+  if (!patientId) return null
+  // 如果已经是住院ID格式（p开头），直接返回
+  if (patientId.toLowerCase().startsWith('p')) return patientId.toLowerCase()
+  // 否则从映射表中查找
+  return patientIdMap[patientId] || null
+}
+
+// ==================== 检验数据筛选 ====================
+// 筛选检验数据（基于映射后的住院ID）
+const filteredLabResults = computed(() => {
+  const patientId = effectivePatientId.value
+  if (!patientId) return []
+  
+  // 获取对应的住院ID
+  const inpatientId = getInpatientId(patientId)
+  if (!inpatientId) return []
+  
+  return allLabResults.value.filter(report => 
+    report.patientId?.toLowerCase() === inpatientId.toLowerCase()
   )
 })
 
+// 筛选后的检验日期列表
+const filteredLabDates = computed(() => {
+  return filteredLabResults.value.map(item => item.date)
+})
+
+// 当前选中的检验报告
+const currentLabReport = computed(() => {
+  if (filteredLabResults.value.length === 0) return null
+  
+  // 如果当前选中的日期不在筛选结果中，重置为第一个
+  if (!selectedLabDate.value || !filteredLabDates.value.includes(selectedLabDate.value)) {
+    selectedLabDate.value = filteredLabDates.value[0] || ''
+  }
+  
+  return filteredLabResults.value.find(item => item.date === selectedLabDate.value)
+})
+
+// 当前选中日期的检验项目
+const currentLabItems = computed(() => {
+  return currentLabReport.value?.items || []
+})
+
+// ==================== 影像数据筛选 ====================
+// 筛选影像数据（支持门诊/住院患者匹配）
+const filteredImagingReports = computed(() => {
+  const patientId = effectivePatientId.value
+  const currentPatientObj = currentPatient.value
+  
+  if (!patientId && !currentPatientObj) return []
+  
+  // 获取当前患者姓名
+  const currentPatientName = currentPatientObj?.name || ''
+  
+  // 方法1：按患者ID精确匹配
+  let results = allImagingReports.value.filter(report => 
+    report.patientId === patientId
+  )
+  
+  // 方法2：如果按ID没有匹配到，且有患者姓名，则按姓名匹配
+  if (results.length === 0 && currentPatientName) {
+    results = allImagingReports.value.filter(report => 
+      report.patientName === currentPatientName
+    )
+    console.log(`按姓名匹配影像数据: ${currentPatientName}, 找到 ${results.length} 条`)
+  }
+  
+  // 方法3：如果还是没有，尝试模糊匹配（门诊ID到住院ID的映射）
+  if (results.length === 0 && patientId) {
+    // 获取对应的住院ID
+    const inpatientId = getInpatientId(patientId)
+    if (inpatientId && inpatientId !== patientId) {
+      results = allImagingReports.value.filter(report => 
+        report.patientId === inpatientId
+      )
+      console.log(`按映射ID匹配影像数据: ${patientId} -> ${inpatientId}, 找到 ${results.length} 条`)
+    }
+  }
+  
+  return results
+})
+
+// ==================== 医嘱数据筛选 ====================
+// 过滤后的医嘱（支持搜索和分类筛选）
+const filteredOrders = computed(() => {
+  let result = orders.value
+  
+  // 按分类筛选
+  if (selectedCategory.value) {
+    result = result.filter(item => item.category === selectedCategory.value)
+  }
+  
+  // 按关键词搜索
+  if (orderSearch.value) {
+    const keyword = orderSearch.value.toLowerCase()
+    result = result.filter(item => 
+      item.name.toLowerCase().includes(keyword) || 
+      item.content?.toLowerCase().includes(keyword) ||
+      item.description?.toLowerCase().includes(keyword)
+    )
+  }
+  
+  return result
+})
+
+// ==================== 模板数据筛选 ====================
 // 过滤后的模板
 const filteredTemplates = computed(() => {
   if (!templateSearch.value) return templates.value
@@ -285,23 +536,81 @@ const filteredTemplates = computed(() => {
   )
 })
 
-// 检验日期列表
-const labDates = computed(() => {
-  return labResults.value.map(item => item.date)
-})
-
-// 当前选中的检验报告
-const currentLabReport = computed(() => {
-  if (!selectedLabDate.value && labResults.value.length > 0) {
-    selectedLabDate.value = labResults.value[0]?.date || ''
+// ==================== 辅助函数 ====================
+// 获取分类名称
+function getCategoryName(category) {
+  const map = {
+    medication: '西药',
+    treatment: '输液治疗',
+    examination: '实验室检查',
+    nursing: '护理操作',
+    diet: '饮食指导',
+    advice: '医嘱建议'
   }
-  return labResults.value.find(item => item.date === selectedLabDate.value)
-})
+  return map[category] || category
+}
 
-// 当前选中日期的检验项目
-const currentLabItems = computed(() => {
-  return currentLabReport.value?.items || []
-})
+// 获取分类标签样式
+function getCategoryTagType(category) {
+  const map = {
+    medication: 'primary',
+    treatment: 'success',
+    examination: 'warning',
+    nursing: 'info',
+    diet: 'success',
+    advice: 'info'
+  }
+  return map[category] || 'info'
+}
+
+// 获取 modality 标签样式
+function getModalityTagType(modality) {
+  const map = {
+    'CT': 'primary',
+    'MRI': 'success',
+    'XR': 'warning',
+    'US': 'info',
+    'ECG': 'danger'
+  }
+  return map[modality] || 'info'
+}
+
+// 获取频率文本
+function getFrequencyText(frequency) {
+  const map = {
+    'qd': '每日1次',
+    'bid': '每日2次',
+    'tid': '每日3次',
+    'qid': '每日4次',
+    'q2h': '每2小时1次',
+    'q4h': '每4小时1次',
+    'q6h': '每6小时1次',
+    'q8h': '每8小时1次',
+    'q12h': '每12小时1次',
+    'stat': '立即',
+    'prn': '必要时',
+    'ac': '餐前',
+    'pc': '餐后',
+    'continuous': '持续'
+  }
+  return map[frequency] || frequency
+}
+
+// 获取给药途径文本
+function getRouteText(route) {
+  const map = {
+    'po': '口服',
+    'iv': '静脉注射',
+    'ivgtt': '静脉滴注',
+    'im': '肌肉注射',
+    'ih': '皮下注射',
+    'ng': '鼻饲',
+    'neb': '雾化吸入',
+    'topical': '外用',
+    'nasal': '鼻导管'
+  }
+  return map[route] || route
+}
 
 // 日期变化时刷新
 function onDateChange() {
@@ -380,7 +689,7 @@ function handleResize() {
 // 加载数据
 onMounted(async () => {
   // 确保 store 中有数据
-  if (labResults.value.length === 0) {
+  if (allLabResults.value.length === 0) {
     refStore.loadMockData()
   }
   handleResize()
@@ -425,10 +734,30 @@ onUnmounted(() => {
   padding: 0 5px;
 }
 
+.category-select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+
 .date-select {
   width: 100%;
   margin-bottom: 10px;
   padding: 0 5px;
+}
+
+.current-patient-info {
+  margin-bottom: 12px;
+  padding: 0 5px;
+}
+
+.data-source-tip {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.empty-tip {
+  padding: 20px 0;
 }
 
 /* 报告信息卡片样式 - 网格布局 */
@@ -531,6 +860,11 @@ onUnmounted(() => {
   flex-wrap: wrap;
 }
 
+.category-tag,
+.modality-tag {
+  font-size: 10px;
+}
+
 .item-desc {
   font-size: 13px;
   color: #606266;
@@ -544,6 +878,22 @@ onUnmounted(() => {
   margin-bottom: 4px;
 }
 
+.item-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.item-recommendation {
+  font-size: 12px;
+  color: #e6a23c;
+  margin-top: 4px;
+}
+
 .result-high {
   color: #f56c6c;
   font-weight: bold;
@@ -552,14 +902,6 @@ onUnmounted(() => {
 .result-low {
   color: #e6a23c;
   font-weight: bold;
-}
-
-.item-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: #909399;
 }
 
 .flag-tag {
