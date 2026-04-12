@@ -91,7 +91,7 @@
               show-icon
             />
             <div v-if="currentPatient.id?.startsWith('op') && filteredLabResults.length > 0" class="data-source-tip">
-              <el-text size="small" type="info">（检验数据来源于住院记录）</el-text>
+              <el-text size="small" type="success">✅ 已关联患者历史影像数据</el-text>
             </div>
           </div>
           <div class="current-patient-info" v-else-if="props.patientId">
@@ -209,9 +209,6 @@
               :closable="false"
               show-icon
             />
-            <div v-if="currentPatient.id?.startsWith('op') && filteredImagingReports.length > 0" class="data-source-tip">
-                <el-text size="small" type="success">(已关联患者历史影像数据)</el-text>
-            </div>
           </div>
           <div class="current-patient-info" v-else-if="props.patientId">
             <el-alert 
@@ -300,8 +297,15 @@
                 @change="() => toggleSelection('templates', item.id)"
               />
               <div class="item-content">
-                <div class="item-name">{{ item.name }}</div>
-                <el-tag size="small" type="warning">{{ item.category }}</el-tag>
+                <div class="item-name">
+                  {{ item.name }}
+                  <el-tag size="small" type="warning">{{ item.categoryName || item.category }}</el-tag>
+                </div>
+                <div class="item-desc">{{ item.preview || item.content?.substring(0, 50) }}...</div>
+                <div class="item-meta" v-if="item.usageCount">
+                  <span>📊 使用 {{ item.usageCount }} 次</span>
+                  <span v-if="item.tags">🏷️ {{ item.tags.join(', ') }}</span>
+                </div>
               </div>
             </div>
             <el-empty v-if="filteredTemplates.length === 0" description="暂无模板" />
@@ -422,99 +426,54 @@ const patientIdMap = {
 // 获取对应的住院ID
 function getInpatientId(patientId) {
   if (!patientId) return null
-  // 如果已经是住院ID格式（p开头），直接返回
   if (patientId.toLowerCase().startsWith('p')) return patientId.toLowerCase()
-  // 否则从映射表中查找
   return patientIdMap[patientId] || null
 }
 
 // ==================== 检验数据筛选 ====================
-// 筛选检验数据（基于映射后的住院ID）
 const filteredLabResults = computed(() => {
   const patientId = effectivePatientId.value
   if (!patientId) return []
-  
-  // 获取对应的住院ID
   const inpatientId = getInpatientId(patientId)
   if (!inpatientId) return []
-  
   return allLabResults.value.filter(report => 
     report.patientId?.toLowerCase() === inpatientId.toLowerCase()
   )
 })
 
-// 筛选后的检验日期列表
 const filteredLabDates = computed(() => {
   return filteredLabResults.value.map(item => item.date)
 })
 
-// 当前选中的检验报告
 const currentLabReport = computed(() => {
   if (filteredLabResults.value.length === 0) return null
-  
-  // 如果当前选中的日期不在筛选结果中，重置为第一个
   if (!selectedLabDate.value || !filteredLabDates.value.includes(selectedLabDate.value)) {
     selectedLabDate.value = filteredLabDates.value[0] || ''
   }
-  
   return filteredLabResults.value.find(item => item.date === selectedLabDate.value)
 })
 
-// 当前选中日期的检验项目
 const currentLabItems = computed(() => {
   return currentLabReport.value?.items || []
 })
 
 // ==================== 影像数据筛选 ====================
-// 筛选影像数据（支持门诊/住院患者匹配）
 const filteredImagingReports = computed(() => {
   const patientId = effectivePatientId.value
-  const currentPatientObj = currentPatient.value
-  
-  if (!patientId && !currentPatientObj) return []
-  
-  // 获取当前患者姓名
-  const currentPatientName = currentPatientObj?.name || ''
-  
-  // 方法1：按患者ID精确匹配
-  let results = allImagingReports.value.filter(report => 
-    report.patientId === patientId
+  if (!patientId) return []
+  const inpatientId = getInpatientId(patientId)
+  if (!inpatientId) return []
+  return allImagingReports.value.filter(report => 
+    report.patientId?.toLowerCase() === inpatientId.toLowerCase()
   )
-  
-  // 方法2：如果按ID没有匹配到，且有患者姓名，则按姓名匹配
-  if (results.length === 0 && currentPatientName) {
-    results = allImagingReports.value.filter(report => 
-      report.patientName === currentPatientName
-    )
-    console.log(`按姓名匹配影像数据: ${currentPatientName}, 找到 ${results.length} 条`)
-  }
-  
-  // 方法3：如果还是没有，尝试模糊匹配（门诊ID到住院ID的映射）
-  if (results.length === 0 && patientId) {
-    // 获取对应的住院ID
-    const inpatientId = getInpatientId(patientId)
-    if (inpatientId && inpatientId !== patientId) {
-      results = allImagingReports.value.filter(report => 
-        report.patientId === inpatientId
-      )
-      console.log(`按映射ID匹配影像数据: ${patientId} -> ${inpatientId}, 找到 ${results.length} 条`)
-    }
-  }
-  
-  return results
 })
 
 // ==================== 医嘱数据筛选 ====================
-// 过滤后的医嘱（支持搜索和分类筛选）
 const filteredOrders = computed(() => {
   let result = orders.value
-  
-  // 按分类筛选
   if (selectedCategory.value) {
     result = result.filter(item => item.category === selectedCategory.value)
   }
-  
-  // 按关键词搜索
   if (orderSearch.value) {
     const keyword = orderSearch.value.toLowerCase()
     result = result.filter(item => 
@@ -523,12 +482,10 @@ const filteredOrders = computed(() => {
       item.description?.toLowerCase().includes(keyword)
     )
   }
-  
   return result
 })
 
 // ==================== 模板数据筛选 ====================
-// 过滤后的模板
 const filteredTemplates = computed(() => {
   if (!templateSearch.value) return templates.value
   return templates.value.filter(item => 
@@ -537,7 +494,6 @@ const filteredTemplates = computed(() => {
 })
 
 // ==================== 辅助函数 ====================
-// 获取分类名称
 function getCategoryName(category) {
   const map = {
     medication: '西药',
@@ -550,7 +506,6 @@ function getCategoryName(category) {
   return map[category] || category
 }
 
-// 获取分类标签样式
 function getCategoryTagType(category) {
   const map = {
     medication: 'primary',
@@ -563,7 +518,6 @@ function getCategoryTagType(category) {
   return map[category] || 'info'
 }
 
-// 获取 modality 标签样式
 function getModalityTagType(modality) {
   const map = {
     'CT': 'primary',
@@ -575,49 +529,27 @@ function getModalityTagType(modality) {
   return map[modality] || 'info'
 }
 
-// 获取频率文本
 function getFrequencyText(frequency) {
   const map = {
-    'qd': '每日1次',
-    'bid': '每日2次',
-    'tid': '每日3次',
-    'qid': '每日4次',
-    'q2h': '每2小时1次',
-    'q4h': '每4小时1次',
-    'q6h': '每6小时1次',
-    'q8h': '每8小时1次',
-    'q12h': '每12小时1次',
-    'stat': '立即',
-    'prn': '必要时',
-    'ac': '餐前',
-    'pc': '餐后',
-    'continuous': '持续'
+    'qd': '每日1次', 'bid': '每日2次', 'tid': '每日3次', 'qid': '每日4次',
+    'q2h': '每2小时1次', 'q4h': '每4小时1次', 'q6h': '每6小时1次',
+    'q8h': '每8小时1次', 'q12h': '每12小时1次', 'stat': '立即',
+    'prn': '必要时', 'ac': '餐前', 'pc': '餐后', 'continuous': '持续'
   }
   return map[frequency] || frequency
 }
 
-// 获取给药途径文本
 function getRouteText(route) {
   const map = {
-    'po': '口服',
-    'iv': '静脉注射',
-    'ivgtt': '静脉滴注',
-    'im': '肌肉注射',
-    'ih': '皮下注射',
-    'ng': '鼻饲',
-    'neb': '雾化吸入',
-    'topical': '外用',
-    'nasal': '鼻导管'
+    'po': '口服', 'iv': '静脉注射', 'ivgtt': '静脉滴注',
+    'im': '肌肉注射', 'ih': '皮下注射', 'ng': '鼻饲',
+    'neb': '雾化吸入', 'topical': '外用', 'nasal': '鼻导管'
   }
   return map[route] || route
 }
 
-// 日期变化时刷新
-function onDateChange() {
-  // 触发重新渲染
-}
+function onDateChange() {}
 
-// 检查是否选中
 function isSelected(type, id) {
   const map = {
     orders: refStore.selectedOrders,
@@ -628,21 +560,17 @@ function isSelected(type, id) {
   return map[type]?.includes(id) || false
 }
 
-// 切换选中
 function toggleSelection(type, id) {
   refStore.toggleSelection(type, id)
 }
 
-// 清空所有选中
 function clearAllSelections() {
   refStore.clearAll()
   ElMessage.success('已清空选中项')
 }
 
-// 总选中数
 const totalSelected = computed(() => refStore.totalSelected)
 
-// 获取标记类型
 function getFlagType(flag) {
   const map = { high: 'danger', low: 'warning', normal: 'success' }
   return map[flag] || 'info'
@@ -654,29 +582,56 @@ function getFlagClass(flag) {
   return ''
 }
 
-// 预览选中项
 function previewSelected() {
   previewItems.value = refStore.getSelectedItemsWithDetails()
   previewVisible.value = true
 }
 
-// 确认插入
 function confirmInsert() {
   previewVisible.value = false
   insertSelected()
 }
 
-// 插入选中项
+// ==================== 核心：插入选中项（支持模板结构化数据） ====================
 function insertSelected() {
   const items = refStore.getSelectedItemsWithDetails()
-  if (items.length > 0) {
-    // 格式化每个项目
-    const formattedItems = items.map(item => ({
+  if (items.length === 0) {
+    ElMessage.warning('请先选择要引用的项目')
+    return
+  }
+  
+  // 格式化每个项目，为模板添加 structuredData
+  const formattedItems = items.map(item => {
+    // 如果是模板，从原始模板数据中获取完整的 structuredData
+    if (item.type === 'template') {
+      const fullTemplate = templates.value.find(t => t.id === item.id)
+      return {
+        ...item,
+        formattedText: formatReferenceItem(item),
+        structuredData: fullTemplate?.structuredData || null,
+        content: fullTemplate?.content || item.content,
+        name: fullTemplate?.name || item.name
+      }
+    }
+    // 普通引用（检验、医嘱、影像）
+    return {
       ...item,
       formattedText: formatReferenceItem(item)
-    }))
-    emit('insert', formattedItems)
-    ElMessage.success(`已插入 ${items.length} 项`)
+    }
+  })
+  
+  emit('insert', formattedItems)
+  
+  // 统计插入类型
+  const templateCount = formattedItems.filter(i => i.type === 'template').length
+  const otherCount = formattedItems.length - templateCount
+  
+  if (templateCount > 0 && otherCount > 0) {
+    ElMessage.success(`已应用 ${templateCount} 个模板，插入 ${otherCount} 项引用`)
+  } else if (templateCount > 0) {
+    ElMessage.success(`已应用 ${templateCount} 个模板到结构化表单`)
+  } else {
+    ElMessage.success(`已插入 ${formattedItems.length} 项引用`)
   }
 }
 
@@ -688,7 +643,6 @@ function handleResize() {
 
 // 加载数据
 onMounted(async () => {
-  // 确保 store 中有数据
   if (allLabResults.value.length === 0) {
     refStore.loadMockData()
   }
@@ -760,7 +714,6 @@ onUnmounted(() => {
   padding: 20px 0;
 }
 
-/* 报告信息卡片样式 - 网格布局 */
 .lab-report-info {
   margin-bottom: 12px;
   padding: 0 5px;
@@ -803,17 +756,14 @@ onUnmounted(() => {
   color: #409eff;
 }
 
-/* 响应式布局 */
 @media (max-width: 768px) {
   .info-grid {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  
   .info-item.full-width {
     grid-column: span 1;
   }
-  
   .info-label {
     width: 65px;
   }

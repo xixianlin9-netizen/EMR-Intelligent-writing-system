@@ -17,12 +17,13 @@
           <div class="patient-info" v-if="currentPatient">
             <el-tag type="info">患者：{{ currentPatient.name }}</el-tag>
             <el-tag>{{ currentPatient.gender }} {{ currentPatient.age }}岁</el-tag>
-            <el-tag type="success">床号：{{ currentPatient.bedNumber }}</el-tag>
+            <el-tag type="success" v-if="currentPatient.bedNumber">床号：{{ currentPatient.bedNumber }}</el-tag>
             <el-tag type="warning">诊断：{{ currentPatient.diagnosis }}</el-tag>
           </div>
           
           <!-- 结构化表单 -->
           <StructuredForm 
+            ref="structuredFormRef"
             v-model:chiefComplaint="chiefComplaint"
             v-model:presentIllness="presentIllness"
             v-model:diagnoses="diagnoses"
@@ -87,6 +88,10 @@ const emit = defineEmits(['submit'])
 const emrStore = useEmrStore()
 const patientStore = usePatientStore()
 
+// 添加 ref 引用
+const structuredFormRef = ref(null)
+const editorRef = ref(null)
+
 // 从 store 获取数据
 const chiefComplaint = computed({
   get: () => emrStore.chiefComplaint,
@@ -115,7 +120,6 @@ const currentPatient = computed(() => patientStore.currentPatient)
 const saving = ref(false)
 const isSaved = ref(true)
 const showDraftRecovery = ref(false)
-const editorRef = ref(null)
 
 // 字数统计
 const wordCount = computed(() => {
@@ -129,17 +133,42 @@ watch([chiefComplaint, presentIllness, diagnoses, richTextContent], () => {
   autoSave()
 }, { deep: true })
 
-// 处理插入引用
+// ==================== 核心：处理插入引用 ====================
 function handleInsert(items) {
   items.forEach(item => {
-    const formattedText = formatReferenceItem(item)
-    if (editorRef.value) {
-      editorRef.value.insertReference?.(formattedText, item.type, item.id)
+    // 如果是模板类型且有结构化数据
+    if (item.type === 'template' && item.structuredData) {
+      // 只填充结构化表单，不插入到富文本编辑器
+      if (structuredFormRef.value) {
+        structuredFormRef.value.setFormData(item.structuredData)
+        ElMessage.success(`已应用模板：${item.name || '模板'}，请完善结构化信息`)
+      } else {
+        console.warn('结构化表单组件未找到')
+      }
+      // 添加到引用记录
+      emrStore.addReferenceRecord(item)
+    } 
+    // 普通引用（检验、医嘱、影像）插入到富文本编辑器
+    else {
+      const formattedText = formatReferenceItem(item)
+      if (editorRef.value) {
+        editorRef.value.insertReference?.(formattedText, item.type, item.id)
+      }
+      emrStore.addReferenceRecord(item)
     }
-    // 添加到引用记录
-    emrStore.addReferenceRecord(item)
   })
-  ElMessage.success(`已插入 ${items.length} 项引用`)
+  
+  // 显示汇总消息
+  const templateCount = items.filter(i => i.type === 'template' && i.structuredData).length
+  const otherCount = items.length - templateCount
+  
+  if (templateCount > 0 && otherCount > 0) {
+    ElMessage.success(`已应用 ${templateCount} 个模板，插入 ${otherCount} 项引用`)
+  } else if (templateCount > 0) {
+    ElMessage.success(`已应用 ${templateCount} 个模板到结构化表单`)
+  } else {
+    ElMessage.success(`已插入 ${items.length} 项引用`)
+  }
 }
 
 // 处理内容变化

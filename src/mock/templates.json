@@ -1,14 +1,111 @@
 [
-    {
-      "id": "tmp_001",
-      "name": "普通感冒模板",
-      "category": "common",
-      "content": "主诉：{{chiefComplaint}}\n现病史：患者{{presentIllness}}起病，主要表现为{{symptoms}}。\n既往史：{{pastHistory}}\n体格检查：{{physicalExam}}\n诊断：{{diagnosis}}\n治疗意见：{{treatment}}"
+  {
+    "id": "tmp_001",
+    "name": "普通感冒模板",
+    "category": "common",
+    "categoryName": "常见疾病",
+    "subcategory": "呼吸系统",
+    "icon": "🤧",
+    "structuredData": {
+      "chiefComplaint": "发热、咳嗽",
+      "presentIllnessType": "急性",
+      "symptoms": ["发热", "咳嗽"],
+      "symptomDescription": "伴鼻塞、流涕，无胸闷气促",
+      "diagnoses": ["急性上呼吸道感染（普通感冒）"],
+      "physicalExam": "咽部充血，双肺呼吸音清，未闻及干湿性啰音",
+      "treatment": "1. 注意休息，多饮水\n2. 复方氨酚烷胺片 1片 口服 每日2次\n3. 如有发热，服用布洛芬退热"
     },
-    {
-      "id": "tmp_002",
-      "name": "高血压随访模板",
-      "category": "chronic",
-      "content": "主诉：{{chiefComplaint}}\n现病史：患者高血压病史{{years}}年，近期血压控制在{{bp}}。\n用药情况：{{medication}}\n体格检查：BP {{bpValue}}mmHg\n诊断：高血压病{{grade}}级\n治疗意见：{{treatment}}"
-    }
-  ]
+    "content": "【主诉】\n发热、咳嗽\n\n【现病史】\n患者急性起病，主要表现为发热、咳嗽，伴鼻塞、流涕，无胸闷气促。\n\n【既往史】\n既往体健，否认高血压、糖尿病史。否认药物及食物过敏史。\n\n【体格检查】\n咽部充血，双肺呼吸音清，未闻及干湿性啰音。\n\n【辅助检查】\n血常规：白细胞计数正常，中性粒细胞比例正常。\n\n【初步诊断】\n急性上呼吸道感染（普通感冒）\n\n【治疗意见】\n1. 注意休息，多饮水\n2. 复方氨酚烷胺片 1片 口服 每日2次\n3. 如有发热，服用布洛芬退热\n4. 症状加重及时复诊",
+    "preview": "适用于普通感冒患者",
+    "usageCount": 156,
+    "tags": ["感冒", "呼吸道", "常见病"],
+    "createdBy": "系统",
+    "createdAt": "2026-01-01"
+  },
+  {
+    "id": "tmp_002",
+    "name": "高血压随访模板",
+    "category": "chronic",
+    "categoryName": "慢性病",
+    "subcategory": "心血管系统",
+    "icon": "❤️",
+    "structuredData": {
+      "chiefComplaint": "头晕、头痛",
+      "presentIllnessType": "慢性",
+      "symptomDescription": "血压波动，最高达160/100mmHg",
+      "diagnoses": ["高血压病2级"],
+      "physicalExam": "BP: 145/95mmHg，心率78次/分，律齐",
+      "pastHistory": ["高血压"],
+      "treatment": "1. 硝苯地平缓释片 30mg qd\n2. 低盐低脂饮食\n3. 监测血压"
+    },
+    "content": "【主诉】\n头晕、头痛\n\n【现病史】\n患者高血压病史多年，平素规律服用降压药物，血压控制在140/90mmHg左右。近期出现头晕、头痛，血压波动。\n\n【既往史】\n高血压病史多年。否认糖尿病、冠心病史。\n\n【体格检查】\nBP: 145/95mmHg，心率78次/分，律齐。\n\n【初步诊断】\n高血压病2级\n\n【治疗意见】\n1. 硝苯地平缓释片 30mg qd\n2. 低盐低脂饮食\n3. 监测血压",
+    "preview": "适用于高血压患者随访",
+    "usageCount": 89,
+    "tags": ["高血压", "慢性病", "随访"],
+    "createdBy": "系统",
+    "createdAt": "2026-01-01"
+  },
+  {
+    "id": "tmp_006",
+    "name": "糖尿病随访模板",
+    "category": "chronic",
+    "categoryName": "慢性病",
+    "subcategory": "内分泌系统",
+    "icon": "🩸",
+    "structuredData": {
+      "chiefComplaint": "口干、多饮",
+      "presentIllnessType": "慢性",
+      "symptomDescription": "血糖控制不佳",
+      "diagnoses": ["2型糖尿病"],
+      "physicalExam": "BP: 130/80mmHg",
+      "pastHistory": ["糖尿病"],
+      "treatment": "1. 二甲双胍 0.5g tid\n2. 糖尿病饮食\n3. 监测血糖"
+    },
+    "content": "【主诉】\n口干、多饮\n\n【现病史】\n患者糖尿病病史多年，平素服用降糖药物控制血糖。近期出现口干、多饮，血糖控制不佳。\n\n【体格检查】\nBP: 130/80mmHg\n\n【辅助检查】\n空腹血糖偏高\n\n【初步诊断】\n2型糖尿病\n\n【治疗意见】\n1. 二甲双胍 0.5g tid\n2. 糖尿病饮食\n3. 监测血糖",
+    "preview": "适用于糖尿病患者随访",
+    "usageCount": 56,
+    "tags": ["糖尿病", "慢性病", "血糖"],
+    "createdBy": "系统",
+    "createdAt": "2026-01-01"
+  },
+  {
+    "id": "tmp_007",
+    "name": "肺炎模板",
+    "category": "common",
+    "categoryName": "常见疾病",
+    "subcategory": "呼吸系统",
+    "icon": "🫁",
+    "structuredData": {
+      "chiefComplaint": "发热、咳嗽伴咳痰",
+      "presentIllnessType": "急性",
+      "symptoms": ["发热", "咳嗽", "咳痰"],
+      "symptomDescription": "最高体温39.2℃，咳黄色黏痰",
+      "diagnoses": ["社区获得性肺炎"],
+      "physicalExam": "双肺呼吸音粗，可闻及湿性啰音",
+      "treatment": "1. 头孢呋辛 0.5g bid\n2. 氨溴索 30mg tid\n3. 退热对症治疗"
+    },
+    "content": "【主诉】\n发热、咳嗽伴咳痰\n\n【现病史】\n患者急性起病，出现发热，最高体温39.2℃，伴咳嗽、咳黄色黏痰。\n\n【体格检查】\n双肺呼吸音粗，可闻及湿性啰音。\n\n【辅助检查】\n血常规：白细胞升高\n胸部CT：双肺可见斑片状高密度影\n\n【初步诊断】\n社区获得性肺炎\n\n【治疗意见】\n1. 头孢呋辛 0.5g bid\n2. 氨溴索 30mg tid\n3. 退热对症治疗",
+    "preview": "适用于肺炎患者",
+    "usageCount": 78,
+    "tags": ["肺炎", "呼吸道", "感染"],
+    "createdBy": "系统",
+    "createdAt": "2026-01-01"
+  },
+  {
+    "id": "tmp_013",
+    "name": "体格检查模板",
+    "category": "exam",
+    "categoryName": "检查记录",
+    "subcategory": "体格检查",
+    "icon": "🩺",
+    "structuredData": {
+      "physicalExam": "神志清楚，精神可。双肺呼吸音清，未闻及干湿性啰音。心率78次/分，律齐。腹平软，无压痛。"
+    },
+    "content": "【体格检查】\n神志清楚，精神可。双肺呼吸音清，未闻及干湿性啰音。心率78次/分，律齐。腹平软，无压痛。",
+    "preview": "适用于完整体格检查记录",
+    "usageCount": 92,
+    "tags": ["体格检查", "体检"],
+    "createdBy": "系统",
+    "createdAt": "2026-01-01"
+  }
+]
