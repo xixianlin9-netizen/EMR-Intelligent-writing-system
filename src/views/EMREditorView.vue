@@ -66,7 +66,7 @@
       show-icon
     />
 
-    <!-- 编辑器组件 -->
+    <!-- 编辑器组件 - 使用正确的路径 -->
     <EMREditor 
       ref="editorRef"
       :patient-id="patientId"
@@ -81,6 +81,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+// 修改这里的导入路径 - 使用 @ 别名
 import EMREditor from '@/components/editor/EMREditor.vue'
 import { usePatientStore } from '@/stores/patientStore'
 import { useEmrRecordStore } from '@/stores/emrRecordStore'

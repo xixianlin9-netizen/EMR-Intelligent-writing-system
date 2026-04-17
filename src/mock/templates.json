@@ -1,111 +1,450 @@
-[
-  {
-    "id": "tmp_001",
-    "name": "普通感冒模板",
-    "category": "common",
-    "categoryName": "常见疾病",
-    "subcategory": "呼吸系统",
-    "icon": "🤧",
-    "structuredData": {
-      "chiefComplaint": "发热、咳嗽",
-      "presentIllnessType": "急性",
-      "symptoms": ["发热", "咳嗽"],
-      "symptomDescription": "伴鼻塞、流涕，无胸闷气促",
-      "diagnoses": ["急性上呼吸道感染（普通感冒）"],
-      "physicalExam": "咽部充血，双肺呼吸音清，未闻及干湿性啰音",
-      "treatment": "1. 注意休息，多饮水\n2. 复方氨酚烷胺片 1片 口服 每日2次\n3. 如有发热，服用布洛芬退热"
+{
+  "groups": [
+    {
+      "id": "group_common",
+      "name": "常见疾病",
+      "order": 1,
+      "templateCount": 3,
+      "icon": "🏥",
+      "description": "门诊常见病模板"
     },
-    "content": "【主诉】\n发热、咳嗽\n\n【现病史】\n患者急性起病，主要表现为发热、咳嗽，伴鼻塞、流涕，无胸闷气促。\n\n【既往史】\n既往体健，否认高血压、糖尿病史。否认药物及食物过敏史。\n\n【体格检查】\n咽部充血，双肺呼吸音清，未闻及干湿性啰音。\n\n【辅助检查】\n血常规：白细胞计数正常，中性粒细胞比例正常。\n\n【初步诊断】\n急性上呼吸道感染（普通感冒）\n\n【治疗意见】\n1. 注意休息，多饮水\n2. 复方氨酚烷胺片 1片 口服 每日2次\n3. 如有发热，服用布洛芬退热\n4. 症状加重及时复诊",
-    "preview": "适用于普通感冒患者",
-    "usageCount": 156,
-    "tags": ["感冒", "呼吸道", "常见病"],
-    "createdBy": "系统",
-    "createdAt": "2026-01-01"
-  },
-  {
-    "id": "tmp_002",
-    "name": "高血压随访模板",
-    "category": "chronic",
-    "categoryName": "慢性病",
-    "subcategory": "心血管系统",
-    "icon": "❤️",
-    "structuredData": {
-      "chiefComplaint": "头晕、头痛",
-      "presentIllnessType": "慢性",
-      "symptomDescription": "血压波动，最高达160/100mmHg",
-      "diagnoses": ["高血压病2级"],
-      "physicalExam": "BP: 145/95mmHg，心率78次/分，律齐",
-      "pastHistory": ["高血压"],
-      "treatment": "1. 硝苯地平缓释片 30mg qd\n2. 低盐低脂饮食\n3. 监测血压"
+    {
+      "id": "group_chronic",
+      "name": "慢性病管理",
+      "order": 2,
+      "templateCount": 2,
+      "icon": "📋",
+      "description": "高血压、糖尿病等慢性病随访模板"
     },
-    "content": "【主诉】\n头晕、头痛\n\n【现病史】\n患者高血压病史多年，平素规律服用降压药物，血压控制在140/90mmHg左右。近期出现头晕、头痛，血压波动。\n\n【既往史】\n高血压病史多年。否认糖尿病、冠心病史。\n\n【体格检查】\nBP: 145/95mmHg，心率78次/分，律齐。\n\n【初步诊断】\n高血压病2级\n\n【治疗意见】\n1. 硝苯地平缓释片 30mg qd\n2. 低盐低脂饮食\n3. 监测血压",
-    "preview": "适用于高血压患者随访",
-    "usageCount": 89,
-    "tags": ["高血压", "慢性病", "随访"],
-    "createdBy": "系统",
-    "createdAt": "2026-01-01"
-  },
-  {
-    "id": "tmp_006",
-    "name": "糖尿病随访模板",
-    "category": "chronic",
-    "categoryName": "慢性病",
-    "subcategory": "内分泌系统",
-    "icon": "🩸",
-    "structuredData": {
-      "chiefComplaint": "口干、多饮",
-      "presentIllnessType": "慢性",
-      "symptomDescription": "血糖控制不佳",
-      "diagnoses": ["2型糖尿病"],
-      "physicalExam": "BP: 130/80mmHg",
-      "pastHistory": ["糖尿病"],
-      "treatment": "1. 二甲双胍 0.5g tid\n2. 糖尿病饮食\n3. 监测血糖"
+    {
+      "id": "group_exam",
+      "name": "检查记录",
+      "order": 3,
+      "templateCount": 1,
+      "icon": "🩺",
+      "description": "体格检查、健康体检模板"
     },
-    "content": "【主诉】\n口干、多饮\n\n【现病史】\n患者糖尿病病史多年，平素服用降糖药物控制血糖。近期出现口干、多饮，血糖控制不佳。\n\n【体格检查】\nBP: 130/80mmHg\n\n【辅助检查】\n空腹血糖偏高\n\n【初步诊断】\n2型糖尿病\n\n【治疗意见】\n1. 二甲双胍 0.5g tid\n2. 糖尿病饮食\n3. 监测血糖",
-    "preview": "适用于糖尿病患者随访",
-    "usageCount": 56,
-    "tags": ["糖尿病", "慢性病", "血糖"],
-    "createdBy": "系统",
-    "createdAt": "2026-01-01"
-  },
-  {
-    "id": "tmp_007",
-    "name": "肺炎模板",
-    "category": "common",
-    "categoryName": "常见疾病",
-    "subcategory": "呼吸系统",
-    "icon": "🫁",
-    "structuredData": {
-      "chiefComplaint": "发热、咳嗽伴咳痰",
-      "presentIllnessType": "急性",
-      "symptoms": ["发热", "咳嗽", "咳痰"],
-      "symptomDescription": "最高体温39.2℃，咳黄色黏痰",
-      "diagnoses": ["社区获得性肺炎"],
-      "physicalExam": "双肺呼吸音粗，可闻及湿性啰音",
-      "treatment": "1. 头孢呋辛 0.5g bid\n2. 氨溴索 30mg tid\n3. 退热对症治疗"
+    {
+      "id": "group_admission",
+      "name": "入院记录",
+      "order": 4,
+      "templateCount": 1,
+      "icon": "📝",
+      "description": "入院记录、出院小结模板"
+    }
+  ],
+  "templates": [
+    {
+      "id": "tmp_common_cold",
+      "name": "普通感冒模板",
+      "groupId": "group_common",
+      "usageCount": 156,
+      "createdAt": "2026-01-15T00:00:00.000Z",
+      "updatedAt": "2026-03-20T00:00:00.000Z",
+      "fields": [
+        {
+          "id": "field_cold_001",
+          "type": "text",
+          "label": "主诉",
+          "code": "CHIEF_COMPLAINT",
+          "placeholder": "例如：发热、咳嗽3天",
+          "defaultValue": "",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 200
+        },
+        {
+          "id": "field_cold_002",
+          "type": "checkbox",
+          "label": "主要症状",
+          "code": "SYMPTOMS",
+          "placeholder": "请选择主要症状",
+          "defaultValue": ["发热", "咳嗽"],
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "options": [
+            { "label": "发热", "value": "发热" },
+            { "label": "咳嗽", "value": "咳嗽" },
+            { "label": "咳痰", "value": "咳痰" },
+            { "label": "鼻塞", "value": "鼻塞" },
+            { "label": "流涕", "value": "流涕" },
+            { "label": "咽痛", "value": "咽痛" },
+            { "label": "头痛", "value": "头痛" },
+            { "label": "乏力", "value": "乏力" }
+          ]
+        },
+        {
+          "id": "field_cold_003",
+          "type": "radio",
+          "label": "体温情况",
+          "code": "TEMPERATURE_STATUS",
+          "placeholder": "请选择体温情况",
+          "defaultValue": "正常",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "options": [
+            { "label": "正常（<37.3℃）", "value": "normal" },
+            { "label": "低热（37.3-38℃）", "value": "low_fever" },
+            { "label": "中热（38.1-39℃）", "value": "moderate_fever" },
+            { "label": "高热（39.1-41℃）", "value": "high_fever" }
+          ]
+        },
+        {
+          "id": "field_cold_004",
+          "type": "textarea",
+          "label": "现病史",
+          "code": "PRESENT_ILLNESS",
+          "placeholder": "详细描述病情发展过程",
+          "defaultValue": "",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "maxLength": 500
+        },
+        {
+          "id": "field_cold_005",
+          "type": "text",
+          "label": "初步诊断",
+          "code": "DIAGNOSIS",
+          "placeholder": "请输入初步诊断",
+          "defaultValue": "急性上呼吸道感染",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 100
+        },
+        {
+          "id": "field_cold_006",
+          "type": "textarea",
+          "label": "治疗意见",
+          "code": "TREATMENT",
+          "placeholder": "请输入治疗意见",
+          "defaultValue": "1. 注意休息，多饮水\n2. 对症治疗\n3. 症状加重及时复诊",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "maxLength": 300
+        }
+      ],
+      "content": "【主诉】\n{{chiefComplaint}}\n\n【现病史】\n患者于3天前出现{{symptoms}}，体温{{temperatureStatus}}。病来一般情况可。\n\n【体格检查】\n咽部充血，双肺呼吸音清，未闻及干湿性啰音。\n\n【初步诊断】\n{{diagnosis}}\n\n【治疗意见】\n{{treatment}}"
     },
-    "content": "【主诉】\n发热、咳嗽伴咳痰\n\n【现病史】\n患者急性起病，出现发热，最高体温39.2℃，伴咳嗽、咳黄色黏痰。\n\n【体格检查】\n双肺呼吸音粗，可闻及湿性啰音。\n\n【辅助检查】\n血常规：白细胞升高\n胸部CT：双肺可见斑片状高密度影\n\n【初步诊断】\n社区获得性肺炎\n\n【治疗意见】\n1. 头孢呋辛 0.5g bid\n2. 氨溴索 30mg tid\n3. 退热对症治疗",
-    "preview": "适用于肺炎患者",
-    "usageCount": 78,
-    "tags": ["肺炎", "呼吸道", "感染"],
-    "createdBy": "系统",
-    "createdAt": "2026-01-01"
-  },
-  {
-    "id": "tmp_013",
-    "name": "体格检查模板",
-    "category": "exam",
-    "categoryName": "检查记录",
-    "subcategory": "体格检查",
-    "icon": "🩺",
-    "structuredData": {
-      "physicalExam": "神志清楚，精神可。双肺呼吸音清，未闻及干湿性啰音。心率78次/分，律齐。腹平软，无压痛。"
+    {
+      "id": "tmp_hypertension",
+      "name": "高血压随访模板",
+      "groupId": "group_chronic",
+      "usageCount": 234,
+      "createdAt": "2026-01-10T00:00:00.000Z",
+      "updatedAt": "2026-03-25T00:00:00.000Z",
+      "fields": [
+        {
+          "id": "field_ht_001",
+          "type": "text",
+          "label": "主诉",
+          "code": "CHIEF_COMPLAINT",
+          "placeholder": "例如：头晕、头痛3天",
+          "defaultValue": "",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 200
+        },
+        {
+          "id": "field_ht_002",
+          "type": "number",
+          "label": "收缩压",
+          "code": "SBP",
+          "placeholder": "请输入收缩压",
+          "defaultValue": "130",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "min": 60,
+          "max": 250
+        },
+        {
+          "id": "field_ht_003",
+          "type": "number",
+          "label": "舒张压",
+          "code": "DBP",
+          "placeholder": "请输入舒张压",
+          "defaultValue": "85",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "min": 40,
+          "max": 150
+        },
+        {
+          "id": "field_ht_004",
+          "type": "number",
+          "label": "心率",
+          "code": "HEART_RATE",
+          "placeholder": "请输入心率",
+          "defaultValue": "75",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "min": 40,
+          "max": 150
+        },
+        {
+          "id": "field_ht_005",
+          "type": "select",
+          "label": "降压药物",
+          "code": "ANTIHYPERTENSIVE",
+          "placeholder": "请选择降压药物",
+          "defaultValue": "硝苯地平",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "options": [
+            { "label": "硝苯地平缓释片", "value": "硝苯地平缓释片" },
+            { "label": "厄贝沙坦片", "value": "厄贝沙坦片" },
+            { "label": "贝那普利片", "value": "贝那普利片" },
+            { "label": "美托洛尔片", "value": "美托洛尔片" },
+            { "label": "氢氯噻嗪片", "value": "氢氯噻嗪片" }
+          ]
+        },
+        {
+          "id": "field_ht_006",
+          "type": "text",
+          "label": "初步诊断",
+          "code": "DIAGNOSIS",
+          "placeholder": "请输入初步诊断",
+          "defaultValue": "高血压病",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 100
+        }
+      ],
+      "content": "【主诉】\n{{chiefComplaint}}\n\n【现病史】\n患者高血压病史多年，平素服用{{antihypertensive}}控制血压。\n\n【体格检查】\nBP: {{sbp}}/{{dbp}}mmHg，心率{{heartRate}}次/分，律齐。\n\n【初步诊断】\n{{diagnosis}}\n\n【治疗意见】\n1. 继续服用{{antihypertensive}}\n2. 低盐低脂饮食\n3. 定期监测血压"
     },
-    "content": "【体格检查】\n神志清楚，精神可。双肺呼吸音清，未闻及干湿性啰音。心率78次/分，律齐。腹平软，无压痛。",
-    "preview": "适用于完整体格检查记录",
-    "usageCount": 92,
-    "tags": ["体格检查", "体检"],
-    "createdBy": "系统",
-    "createdAt": "2026-01-01"
-  }
-]
+    {
+      "id": "tmp_diabetes",
+      "name": "糖尿病随访模板",
+      "groupId": "group_chronic",
+      "usageCount": 167,
+      "createdAt": "2026-01-12T00:00:00.000Z",
+      "updatedAt": "2026-03-22T00:00:00.000Z",
+      "fields": [
+        {
+          "id": "field_dm_001",
+          "type": "text",
+          "label": "主诉",
+          "code": "CHIEF_COMPLAINT",
+          "placeholder": "例如：口干、多饮1月",
+          "defaultValue": "",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 200
+        },
+        {
+          "id": "field_dm_002",
+          "type": "number",
+          "label": "空腹血糖",
+          "code": "FBG",
+          "placeholder": "请输入空腹血糖",
+          "defaultValue": "7.2",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "min": 2,
+          "max": 30
+        },
+        {
+          "id": "field_dm_003",
+          "type": "number",
+          "label": "糖化血红蛋白",
+          "code": "HBA1C",
+          "placeholder": "请输入糖化血红蛋白",
+          "defaultValue": "7.0",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "min": 4,
+          "max": 15
+        },
+        {
+          "id": "field_dm_004",
+          "type": "select",
+          "label": "降糖药物",
+          "code": "HYPOGLYCEMIC",
+          "placeholder": "请选择降糖药物",
+          "defaultValue": "二甲双胍",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "options": [
+            { "label": "二甲双胍片", "value": "二甲双胍片" },
+            { "label": "格列美脲片", "value": "格列美脲片" },
+            { "label": "阿卡波糖片", "value": "阿卡波糖片" },
+            { "label": "胰岛素", "value": "胰岛素" },
+            { "label": "达格列净片", "value": "达格列净片" }
+          ]
+        },
+        {
+          "id": "field_dm_005",
+          "type": "text",
+          "label": "初步诊断",
+          "code": "DIAGNOSIS",
+          "placeholder": "请输入初步诊断",
+          "defaultValue": "2型糖尿病",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 100
+        }
+      ],
+      "content": "【主诉】\n{{chiefComplaint}}\n\n【现病史】\n患者糖尿病病史多年，平素服用{{hypoglycemic}}控制血糖。\n\n【辅助检查】\n空腹血糖：{{fbg}}mmol/L\n糖化血红蛋白：{{hba1c}}%\n\n【初步诊断】\n{{diagnosis}}\n\n【治疗意见】\n1. 继续服用{{hypoglycemic}}\n2. 糖尿病饮食指导\n3. 定期监测血糖"
+    },
+    {
+      "id": "tmp_physical_exam",
+      "name": "常规体格检查模板",
+      "groupId": "group_exam",
+      "usageCount": 345,
+      "createdAt": "2026-01-05T00:00:00.000Z",
+      "updatedAt": "2026-03-30T00:00:00.000Z",
+      "fields": [
+        {
+          "id": "field_exam_001",
+          "type": "number",
+          "label": "体温",
+          "code": "TEMPERATURE",
+          "placeholder": "请输入体温",
+          "defaultValue": "36.5",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "min": 35,
+          "max": 42
+        },
+        {
+          "id": "field_exam_002",
+          "type": "number",
+          "label": "脉搏",
+          "code": "PULSE",
+          "placeholder": "请输入脉搏",
+          "defaultValue": "75",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "min": 40,
+          "max": 150
+        },
+        {
+          "id": "field_exam_003",
+          "type": "number",
+          "label": "呼吸",
+          "code": "RESPIRATION",
+          "placeholder": "请输入呼吸频率",
+          "defaultValue": "18",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "min": 10,
+          "max": 40
+        },
+        {
+          "id": "field_exam_004",
+          "type": "text",
+          "label": "血压",
+          "code": "BLOOD_PRESSURE",
+          "placeholder": "格式：120/80",
+          "defaultValue": "120/80",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 20
+        },
+        {
+          "id": "field_exam_005",
+          "type": "textarea",
+          "label": "体格检查",
+          "code": "PHYSICAL_EXAM",
+          "placeholder": "请输入其他体格检查发现",
+          "defaultValue": "神志清楚，精神可。双肺呼吸音清，未闻及干湿性啰音。心率齐，各瓣膜听诊区未闻及病理性杂音。腹平软，无压痛、反跳痛。",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "maxLength": 500
+        }
+      ],
+      "content": "【体格检查】\nT: {{temperature}}℃， P: {{pulse}}次/分， R: {{respiration}}次/分， BP: {{bloodPressure}}mmHg。\n{{physicalExam}}"
+    },
+    {
+      "id": "tmp_admission",
+      "name": "入院记录模板",
+      "groupId": "group_admission",
+      "usageCount": 89,
+      "createdAt": "2026-01-08T00:00:00.000Z",
+      "updatedAt": "2026-03-18T00:00:00.000Z",
+      "fields": [
+        {
+          "id": "field_adm_001",
+          "type": "text",
+          "label": "主诉",
+          "code": "CHIEF_COMPLAINT",
+          "placeholder": "例如：发热、咳嗽5天",
+          "defaultValue": "",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 200
+        },
+        {
+          "id": "field_adm_002",
+          "type": "date",
+          "label": "入院日期",
+          "code": "ADMISSION_DATE",
+          "placeholder": "请选择入院日期",
+          "defaultValue": "",
+          "required": true,
+          "deletable": true,
+          "editable": true
+        },
+        {
+          "id": "field_adm_003",
+          "type": "textarea",
+          "label": "现病史",
+          "code": "PRESENT_ILLNESS",
+          "placeholder": "详细描述病情发展过程",
+          "defaultValue": "",
+          "required": true,
+          "deletable": true,
+          "editable": true,
+          "maxLength": 500
+        },
+        {
+          "id": "field_adm_004",
+          "type": "textarea",
+          "label": "既往史",
+          "code": "PAST_HISTORY",
+          "placeholder": "既往疾病史、手术史、过敏史",
+          "defaultValue": "既往体健，否认高血压、糖尿病史。否认药物及食物过敏史。",
+          "required": false,
+          "deletable": true,
+          "editable": true,
+          "maxLength": 300
+        },
+        {
+          "id": "field_adm_005",
+          "type": "text",
+          "label": "初步诊断",
+          "code": "DIAGNOSIS",
+          "placeholder": "请输入初步诊断",
+          "defaultValue": "",
+          "required": true,
+          "deletable": false,
+          "editable": true,
+          "maxLength": 100
+        }
+      ],
+      "content": "【主诉】\n{{chiefComplaint}}\n\n【现病史】\n{{presentIllness}}\n\n【既往史】\n{{pastHistory}}\n\n【体格检查】\n待补充\n\n【初步诊断】\n{{diagnosis}}\n\n【诊疗计划】\n1. 完善相关检查\n2. 对症支持治疗"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 <template>
   <div class="emr-editor">
     <el-row :gutter="20">
-      <!-- 左侧引用面板 - 传递当前患者ID -->
+      <!-- 左侧引用面板 -->
       <el-col :span="6">
         <DataReferencePanel 
           :patient-id="currentPatient?.id"
@@ -19,6 +19,13 @@
             <el-tag>{{ currentPatient.gender }} {{ currentPatient.age }}岁</el-tag>
             <el-tag type="success" v-if="currentPatient.bedNumber">床号：{{ currentPatient.bedNumber }}</el-tag>
             <el-tag type="warning">诊断：{{ currentPatient.diagnosis }}</el-tag>
+          </div>
+          
+          <!-- 操作工具栏 - 添加模板引用按钮 -->
+          <div class="editor-toolbar">
+            <el-button type="primary" plain @click="showTemplateDialog">
+              <el-icon><Files /></el-icon> 引用个人模板
+            </el-button>
           </div>
           
           <!-- 结构化表单 -->
@@ -62,6 +69,13 @@
       </el-col>
     </el-row>
     
+    <!-- 模板引用对话框 -->
+    <TemplateReferenceDialog 
+      v-model="templateDialogVisible"
+      :current-form-data="currentFormData"
+      @apply="onTemplateApply"
+    />
+    
     <!-- 草稿恢复提示 -->
     <DraftRecoveryBar 
       v-if="showDraftRecovery"
@@ -74,12 +88,14 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Files } from '@element-plus/icons-vue'
 import { useEmrStore } from '@/stores/emrStore'
 import { usePatientStore } from '@/stores/patientStore'
 import DataReferencePanel from './DataReferencePanel.vue'
 import StructuredForm from './StructuredForm.vue'
 import QuillEditor from './QuillEditor.vue'
 import DraftRecoveryBar from '../common/DraftRecoveryBar.vue'
+import TemplateReferenceDialog from '@/components/template/TemplateReferenceDialog.vue'
 import { autoSave, loadDraft, clearDraft, hasDraft } from '@/utils/autoSave'
 import { formatReferenceItem } from '@/utils/ruleEngine'
 
@@ -88,9 +104,12 @@ const emit = defineEmits(['submit'])
 const emrStore = useEmrStore()
 const patientStore = usePatientStore()
 
-// 添加 ref 引用
+// ref 引用
 const structuredFormRef = ref(null)
 const editorRef = ref(null)
+
+// 模板对话框
+const templateDialogVisible = ref(false)
 
 // 从 store 获取数据
 const chiefComplaint = computed({
@@ -116,6 +135,15 @@ const richTextContent = computed({
 // 当前患者
 const currentPatient = computed(() => patientStore.currentPatient)
 
+// 当前表单数据（用于模板应用）
+const currentFormData = computed(() => ({
+  chiefComplaint: chiefComplaint.value,
+  presentIllness: presentIllness.value,
+  presentIllnessType: presentIllness.value,
+  diagnoses: diagnoses.value,
+  richTextContent: richTextContent.value
+}))
+
 // UI状态
 const saving = ref(false)
 const isSaved = ref(true)
@@ -133,23 +161,67 @@ watch([chiefComplaint, presentIllness, diagnoses, richTextContent], () => {
   autoSave()
 }, { deep: true })
 
-// ==================== 核心：处理插入引用 ====================
+// 显示模板对话框
+function showTemplateDialog() {
+  templateDialogVisible.value = true
+}
+
+// 应用模板
+function onTemplateApply({ template, mode }) {
+  console.log('应用模板:', template, mode)
+  
+  if (!template.structuredData) {
+    ElMessage.warning('模板没有配置结构化数据')
+    return
+  }
+  
+  const data = template.structuredData
+  
+  // 填充结构化表单
+  if (data.chiefComplaint !== undefined) {
+    emrStore.setChiefComplaint(data.chiefComplaint)
+  }
+  
+  if (data.presentIllnessType !== undefined) {
+    emrStore.setPresentIllness(data.presentIllnessType)
+  }
+  
+  if (data.diagnoses !== undefined) {
+    // 清空现有诊断
+    while (diagnoses.value.length) {
+      emrStore.removeDiagnosis(0)
+    }
+    const diagnosesList = Array.isArray(data.diagnoses) ? data.diagnoses : [data.diagnoses]
+    diagnosesList.forEach(d => emrStore.addDiagnosis(d))
+  }
+  
+  if (data.physicalExam !== undefined && structuredFormRef.value) {
+    // 通过 StructuredForm 的方法设置体格检查
+    structuredFormRef.value.setFormData?.({ physicalExam: data.physicalExam })
+  }
+  
+  // 如果是追加模式，将模板内容追加到富文本编辑器
+  if (mode === 'append' && template.content) {
+    const currentContent = richTextContent.value
+    const newContent = currentContent + '<br/><br/>' + template.content
+    emrStore.richTextContent = newContent
+  }
+  
+  ElMessage.success(`已应用模板：${template.name}`)
+}
+
+// 处理插入引用（来自 DataReferencePanel）
 function handleInsert(items) {
   items.forEach(item => {
-    // 如果是模板类型且有结构化数据
     if (item.type === 'template' && item.structuredData) {
-      // 只填充结构化表单，不插入到富文本编辑器
+      // 模板类型，填充结构化表单
       if (structuredFormRef.value) {
         structuredFormRef.value.setFormData(item.structuredData)
-        ElMessage.success(`已应用模板：${item.name || '模板'}，请完善结构化信息`)
-      } else {
-        console.warn('结构化表单组件未找到')
+        ElMessage.success(`已应用模板：${item.name || '模板'}`)
       }
-      // 添加到引用记录
       emrStore.addReferenceRecord(item)
-    } 
-    // 普通引用（检验、医嘱、影像）插入到富文本编辑器
-    else {
+    } else {
+      // 普通引用（检验、医嘱、影像）插入到富文本编辑器
       const formattedText = formatReferenceItem(item)
       if (editorRef.value) {
         editorRef.value.insertReference?.(formattedText, item.type, item.id)
@@ -157,18 +229,6 @@ function handleInsert(items) {
       emrStore.addReferenceRecord(item)
     }
   })
-  
-  // 显示汇总消息
-  const templateCount = items.filter(i => i.type === 'template' && i.structuredData).length
-  const otherCount = items.length - templateCount
-  
-  if (templateCount > 0 && otherCount > 0) {
-    ElMessage.success(`已应用 ${templateCount} 个模板，插入 ${otherCount} 项引用`)
-  } else if (templateCount > 0) {
-    ElMessage.success(`已应用 ${templateCount} 个模板到结构化表单`)
-  } else {
-    ElMessage.success(`已插入 ${items.length} 项引用`)
-  }
 }
 
 // 处理内容变化
@@ -248,7 +308,7 @@ onMounted(() => {
 }
 
 .patient-info {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding: 10px;
   background-color: #f9f9f9;
   border-radius: 4px;
@@ -257,6 +317,13 @@ onMounted(() => {
 
 .patient-info .el-tag {
   margin-right: 10px;
+}
+
+.editor-toolbar {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e4e7ed;
+  flex-shrink: 0;
 }
 
 .editor-wrapper {
