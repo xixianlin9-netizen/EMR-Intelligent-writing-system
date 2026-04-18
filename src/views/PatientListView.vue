@@ -75,22 +75,22 @@
         <!-- 住院模式：主治医生 -->
         <el-table-column v-if="isInpatient" prop="attendingDoctor" label="主治医生" width="100" />
         
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
             <el-button 
-              type="primary" 
-              link 
+              plain
+              size="small"
               @click="gotoEMREditor(row.id)"
-              class="action-btn"
+              class="action-btn-custom"
             >
               <el-icon><Edit /></el-icon>
               写病历
             </el-button>
             <el-button 
-              type="success" 
-              link 
+              plain
+              size="small"
               @click="viewPatientDetail(row)"
-              class="action-btn"
+              class="action-btn-custom"
             >
               <el-icon><View /></el-icon>
               详情
@@ -114,14 +114,13 @@
       </div>
     </el-card>
     
-    <!-- 患者详情对话框（保持原有代码） -->
+    <!-- 患者详情对话框 -->
     <el-dialog 
       v-model="detailDialogVisible" 
       :title="`患者详情 - ${currentPatient?.name || ''}`" 
       width="550px"
       class="patient-detail-dialog"
     >
-      <!-- 详情内容保持不变 -->
       <div v-if="currentPatient" class="patient-detail">
         <div class="detail-section">
           <h4>基本信息</h4>
@@ -142,6 +141,74 @@
               <div class="detail-item">
                 <span class="label">年龄：</span>
                 <span class="value">{{ currentPatient.age }}岁</span>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <div class="detail-item">
+                <span class="label">联系电话：</span>
+                <span class="value">{{ currentPatient.phone }}</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="detail-item">
+                <span class="label">科室：</span>
+                <span class="value">{{ currentPatient.department }}</span>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="16">
+            <el-col :span="24">
+              <div class="detail-item">
+                <span class="label">诊断：</span>
+                <span class="value">{{ currentPatient.diagnosis }}</span>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="detail-section" v-if="isInpatient">
+          <h4>住院信息</h4>
+          <el-row :gutter="16">
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">床号：</span>
+                <span class="value">{{ currentPatient.bedNumber || '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">入院日期：</span>
+                <span class="value">{{ currentPatient.admissionDate || '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">主治医生：</span>
+                <span class="value">{{ currentPatient.attendingDoctor || '-' }}</span>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="detail-section" v-if="isOutpatient">
+          <h4>门诊信息</h4>
+          <el-row :gutter="16">
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">就诊日期：</span>
+                <span class="value">{{ currentPatient.visitDate || '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">就诊时间：</span>
+                <span class="value">{{ currentPatient.visitTime || '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <span class="label">接诊医生：</span>
+                <span class="value">{{ currentPatient.doctor || '-' }}</span>
               </div>
             </el-col>
           </el-row>
@@ -229,11 +296,9 @@ async function loadPatients() {
     if (isOutpatient.value) {
       patients.value = outpatientData
       console.log('加载门诊数据，数量:', patients.value.length)
-      console.log('门诊数据示例:', patients.value[0])
     } else {
       patients.value = inpatientData
       console.log('加载住院数据，数量:', patients.value.length)
-      console.log('住院数据示例:', patients.value[0])
     }
     
     // 更新 store 中的患者数据
@@ -270,10 +335,8 @@ function viewPatientDetail(patient) {
 // 监听模式切换，重新加载数据
 watch(() => systemModeStore.currentMode, (newMode, oldMode) => {
   console.log('模式切换:', oldMode, '->', newMode)
-  // 清空搜索和筛选
   searchKeyword.value = ''
   selectedDepartment.value = ''
-  // 重新加载数据
   loadPatients()
 })
 
@@ -285,7 +348,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
 .patient-list {
   padding: 0;
 }
@@ -333,8 +395,29 @@ onMounted(() => {
   color: #606266;
 }
 
-.action-btn {
-  margin: 0 4px;
+/* 自定义操作按钮样式 - 浅灰色悬浮背景 */
+.action-btn-custom {
+  background: transparent;
+  border: none;
+  color: #409eff;
+  transition: all 0.2s ease;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin: 0 2px;
+}
+
+.action-btn-custom:hover {
+  background-color: #f5f7fa;
+  transform: translateY(-1px);
+}
+
+.action-btn-custom:last-child {
+  color: #67c23a;
+}
+
+.action-btn-custom:last-child:hover {
+  background-color: #f5f7fa;
+  color: #67c23a;
 }
 
 .table-footer {
@@ -365,6 +448,39 @@ onMounted(() => {
   gap: 4px;
 }
 
+/* 患者详情对话框样式 */
+.patient-detail-dialog :deep(.el-dialog__body) {
+  padding: 20px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.detail-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.detail-item .label {
+  color: #909399;
+  margin-right: 8px;
+}
+
+.detail-item .value {
+  color: #303133;
+  font-weight: 500;
+}
+
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
   .title-text {
@@ -377,6 +493,10 @@ onMounted(() => {
   
   .diagnosis-text {
     color: #a0a0a0;
+  }
+  
+  .action-btn-custom:hover {
+    background-color: #2a2a2a !important;
   }
 }
 </style>
