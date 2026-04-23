@@ -27,7 +27,7 @@ const router = createRouter({
           component: () => import('@/views/PatientListView.vue')
         },
         {
-          path: '/emr-editor/:patientId?',  // 这里的 :patientId? 表示可选参数
+          path: '/emr-editor/:patientId?',
           name: 'EMREditor',
           component: () => import('@/views/EMREditorView.vue'),
           meta: { requiresAuth: true }
@@ -46,7 +46,7 @@ const router = createRouter({
           path: 'quality',
           name: 'QualityManage',
           component: () => import('@/views/QualityManageView.vue'),
-          meta: { title: '病历质控' }//新添加：3/21
+          meta: { title: '病历质控' }
         }
       ]
     },
@@ -58,19 +58,14 @@ const router = createRouter({
   ]
 })
 
-// 修复路由守卫 - 不再使用 next 回调
 router.beforeEach((to, from) => {
   console.log('路由跳转:', from.path, '->', to.path)
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
   
   if (to.path !== '/login' && !isLoggedIn) {
-    return '/login'  // 直接返回路径字符串
+    return '/login'
   }
-  return true  // 返回 true 表示继续导航
+  return true
 })
 
-<<<<<<< HEAD
 export default router
-=======
-export default router
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f

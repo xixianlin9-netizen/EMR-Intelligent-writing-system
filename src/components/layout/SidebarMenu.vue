@@ -85,8 +85,6 @@
   :deep(.el-menu-item.is-active) {
     background-color: #1f2d3d !important;
   }
-<<<<<<< HEAD
+
   </style>
-=======
-  </style>
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
+  

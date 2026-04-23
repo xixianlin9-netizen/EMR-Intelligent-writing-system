@@ -1,62 +1,10 @@
-# emr-system
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
-
-## 项目 README.md
-
-```markdown
 # 电子病历智能书写系统 (EMR Smart Writing System)
 
-一个基于 Vue 3 开发的智能电子病历前端系统，支持结构化病历书写、多源临床数据引用、智能提醒和草稿自动保存等功能。
+一个基于 Vue 3 开发的智能电子病历前端系统，支持结构化病历书写、多源临床数据引用、智能提醒、草稿自动保存和病历质控管理等功能。
 
 ## 📋 项目简介
 
-本项目是一个面向临床医生的智能电子病历书写前端原型系统，旨在解决传统电子病历系统中存在的重复录入、数据引用繁琐、易丢失内容等问题。系统通过组件化架构实现结构化字段与富文本的协同编辑，支持从医嘱、检验结果、影像报告等多源数据中智能引用内容，并提供本地自动保存机制。
+本项目是一个面向临床医生的智能电子病历书写前端原型系统，旨在解决传统电子病历系统中存在的重复录入、数据引用繁琐、易丢失内容等问题。系统通过组件化架构实现结构化字段与富文本的协同编辑，支持从医嘱、检验结果、影像报告等多源数据中智能引用内容，并提供本地自动保存机制。新增的病历质控管理模块支持自动化质量检查、评分、批量质控、可视化统计分析、可配置规则引擎、智能通知反馈及报告导出等功能。
 
 ## ✨ 功能特性
 
@@ -94,6 +42,18 @@ npm run lint
 - 超时告警（入院记录8小时、病程记录24小时）
 - 实时更新工作台状态
 
+### 7. 病历质控管理 🆕
+- **智能质控检查**：自动检查病历完整性、规范性，支持必填项、长度限制、关键词匹配等规则
+- **批量质控**：支持多选和全选患者，一键批量质控，大幅提升效率
+- **质控评分系统**：百分制评分，A/B/C/D 四级评定，自动统计扣分项
+- **问题清单展示**：清晰列出所有问题及扣分，帮助医生快速定位修改内容
+- **质控历史记录**：记录每次质控的时间、得分、问题，支持追溯
+- **统计图表可视化**：提供趋势分析、问题分布、医生排行榜、合格率趋势等4种图表
+- **可配置规则引擎**：支持动态增删改查质控规则，无需修改代码
+- **智能通知反馈**：质控结果实时推送至通知中心，支持浏览器桌面提醒
+- **报告导出功能**：支持单份报告导出和批量报告导出（HTML格式）
+- **审核流程支持**：通过/驳回/要求修改，支持填写修改意见
+
 ## 🛠️ 技术栈
 
 - **前端框架**：Vue 3 + Composition API
@@ -102,7 +62,8 @@ npm run lint
 - **UI组件库**：Element Plus
 - **路由管理**：Vue Router
 - **富文本编辑器**：Quill (@vueup/vue-quill)
-- **工具库**：lodash-es
+- **图表库**：ECharts
+- **工具库**：lodash-es、html2canvas
 - **开发语言**：JavaScript
 
 ## 📁 项目结构
@@ -120,10 +81,13 @@ emr-system/
 │   │   │   ├── EMREditor.vue           # 病历编辑器主组件
 │   │   │   ├── QuillEditor.vue         # 富文本编辑器
 │   │   │   └── StructuredForm.vue      # 结构化表单
-│   │   └── layout/        # 布局组件
-│   │       ├── DoctorLayout.vue        # 医生工作台布局
-│   │       ├── HeaderBar.vue           # 顶部导航栏
-│   │       └── SidebarMenu.vue         # 侧边栏菜单
+│   │   ├── layout/        # 布局组件
+│   │   │   ├── DoctorLayout.vue        # 医生工作台布局
+│   │   │   ├── HeaderBar.vue           # 顶部导航栏
+│   │   │   └── SidebarMenu.vue         # 侧边栏菜单
+│   │   └── quality/       # 质控管理组件 🆕
+│   │       ├── QualityStatistics.vue   # 统计图表组件
+│   │       └── RuleConfig.vue          # 规则配置组件
 │   ├── mock/              # Mock 数据
 │   │   ├── patients.json  # 患者数据
 │   │   ├── orders.json    # 医嘱模板
@@ -136,10 +100,13 @@ emr-system/
 │   │   ├── userStore.js   # 用户状态
 │   │   ├── patientStore.js # 患者状态
 │   │   ├── emrStore.js    # 病历状态
-│   │   └── emrRecordStore.js # 病历记录状态
+│   │   ├── emrRecordStore.js # 病历记录状态
+│   │   └── qualityControlStore.js # 质控状态 🆕
 │   ├── utils/             # 工具函数
 │   │   ├── autoSave.js    # 自动保存
-│   │   └── ruleEngine.js  # 数据转写规则
+│   │   ├── ruleEngine.js  # 数据转写规则
+│   │   ├── notificationService.js # 通知服务 🆕
+│   │   └── reportExporter.js      # 报告导出服务 🆕
 │   ├── views/             # 页面视图
 │   │   ├── LoginView.vue          # 登录页
 │   │   ├── DashboardView.vue      # 工作台
@@ -147,6 +114,7 @@ emr-system/
 │   │   ├── EMREditorView.vue      # 病历编辑器
 │   │   ├── DataReferenceView.vue  # 数据引用
 │   │   ├── TemplateLibraryView.vue # 模板库
+│   │   ├── QualityManageView.vue  # 病历质控 🆕
 │   │   └── NotFoundView.vue       # 404页面
 │   ├── App.vue            # 根组件
 │   ├── main.js            # 入口文件
@@ -216,6 +184,14 @@ npm run dev
 - 勾选需要引用的项目
 - 点击"插入选中项"将内容插入到病历中
 
+### 6. 病历质控 🆕
+- **单病历质控**：点击患者，点击"开始质控"查看评分和问题
+- **批量质控**：勾选多个患者，点击"批量质控"一键完成
+- **统计图表**：点击"统计图表"查看趋势分析、问题分布、医生排行榜
+- **规则配置**：点击"规则配置"动态调整质控规则
+- **通知中心**：查看质控结果通知
+- **报告导出**：质控后可导出单份或批量质控报告
+
 ## 🔧 核心功能详解
 
 ### 智能告警
@@ -237,19 +213,67 @@ npm run dev
 - 异常值标记：↑（偏高）、↓（偏低）
 - 影像描述：`胸部CT示：双肺纹理增粗`
 
+### 病历质控 🆕
+系统支持对病历进行自动化质量检查：
+
+**质控规则：**
+| 检查项 | 扣分 | 说明 |
+|-------|------|------|
+| 主诉必填 | 10分 | 主诉不能为空 |
+| 现病史必填 | 15分 | 现病史不能为空 |
+| 诊断必填 | 15分 | 诊断不能为空 |
+| 主诉长度合理 | 5分 | 应在5-200字之间 |
+| 现病史包含时间 | 10分 | 应包含"天前/小时前"等时间描述 |
+| 诊断规范 | 10分 | 应包含"诊断/考虑"等关键词 |
+| 体格检查完整 | 10分 | 体格检查不能为空 |
+| 辅助检查记录 | 10分 | 辅助检查应记录 |
+| 治疗意见明确 | 10分 | 应包含"建议/方案"等关键词 |
+
+**评分等级：**
+- **A级**：≥90分（优秀）
+- **B级**：75-89分（良好）
+- **C级**：60-74分（合格）
+- **D级**：<60分（不合格）
+
+**批量质控：** 支持多选和全选患者，一键批量质控，大幅提升质控效率。
+
+**统计图表：** 提供趋势分析、问题分布、医生排行榜、合格率趋势4种可视化图表。
+
+**规则配置：** 支持动态增删改查质控规则，无需修改代码即可适应不同标准。
+
+**通知反馈：** 质控完成后自动推送通知，支持站内通知和浏览器桌面提醒。
+
+**报告导出：** 支持单份报告和批量报告导出，便于存档和分享。
+
 ## 🧪 开发计划
 
 ### 已完成功能 ✅
-用户登录/登出
-工作台 Dashboard
-患者列表
-病历编辑器（结构化+富文本）
-数据引用面板
-模板库
-草稿自动保存/恢复
-病历状态管理
-超时告警
+- 用户登录/登出
+- 工作台 Dashboard
+- 患者列表
+- 病历编辑器（结构化+富文本）
+- 数据引用面板
+- 模板库
+- 草稿自动保存/恢复
+- 病历状态管理
+- 超时告警
+- 病历质控管理 🆕
+  - 智能质控检查
+  - 批量质控（多选+全选）
+  - 质控评分与问题清单
+  - 统计图表（4种图表）
+  - 可配置规则引擎
+  - 通知中心
+  - 报告导出（单份+批量）
+  - 审核流程
+
+### 规划中功能 📋
+- 质控规则导入/导出
+- 正则表达式校验
+- 质控报告PDF导出
+- 质控结果自动修复建议
 
 
 本项目仅供学习交流使用，未经许可不得用于商业用途。
+```
 

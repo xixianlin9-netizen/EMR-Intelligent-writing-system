@@ -5,7 +5,6 @@
       <h2>📋 病历质控管理</h2>
       <p class="subtitle">对患者病历进行质量检查和评分</p>
     </el-card>
-<<<<<<< HEAD
 
     <!-- 功能按钮栏 -->
     <div class="action-buttons" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
@@ -34,25 +33,16 @@
     
     <el-row :gutter="20">
       <!-- 左侧：患者列表（带多选框） -->
-=======
-    
-    <el-row :gutter="20">
-      <!-- 左侧：患者列表 -->
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
       <el-col :span="8">
         <el-card>
           <template #header>
             <div class="card-header">
-<<<<<<< HEAD
               <span>
                 患者列表
                 <el-tag v-if="selectedPatients.length > 0" type="success" size="small" style="margin-left: 8px">
                   已选 {{ selectedPatients.length }} 人
                 </el-tag>
               </span>
-=======
-              <span>患者列表</span>
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
               <el-input 
                 v-model="searchText" 
                 placeholder="搜索患者" 
@@ -64,7 +54,6 @@
           </template>
           
           <div class="patient-list">
-<<<<<<< HEAD
             <!-- 表头：全选复选框 -->
             <div class="list-header">
               <el-checkbox 
@@ -77,14 +66,11 @@
               <span class="header-tip">点击患者可查看详情</span>
             </div>
             
-=======
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
             <div 
               v-for="patient in filteredPatients" 
               :key="patient.id"
               class="patient-item"
               :class="{ active: selectedPatient?.id === patient.id }"
-<<<<<<< HEAD
             >
               <div class="patient-checkbox">
                 <el-checkbox 
@@ -102,18 +88,6 @@
                 </div>
                 <div class="patient-diagnosis">{{ patient.diagnosis || '未填写诊断' }}</div>
               </div>
-=======
-              @click="selectPatient(patient)"
-            >
-              <div class="patient-name">{{ patient.name }}</div>
-              <div class="patient-info">
-                <span>{{ patient.gender }} {{ patient.age }}岁</span>
-                <el-tag :type="getEmrStatusType(patient)" size="small">
-                  {{ getEmrStatusText(patient) }}
-                </el-tag>
-              </div>
-              <div class="patient-diagnosis">{{ patient.diagnosis || '未填写诊断' }}</div>
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
             </div>
             
             <el-empty v-if="filteredPatients.length === 0" description="暂无患者" />
@@ -215,7 +189,6 @@
           </div>
         </el-card>
         
-<<<<<<< HEAD
         <!-- 批量质控结果展示 -->
         <el-card v-else-if="batchResults.length > 0">
           <template #header>
@@ -346,28 +319,18 @@
         </div>
       </div>
     </el-dialog>
-=======
-        <el-empty v-else description="请从左侧选择一位患者" />
-      </el-col>
-    </el-row>
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-<<<<<<< HEAD
 import { DocumentChecked, DataAnalysis, Setting, Bell, Download, Select, Close } from '@element-plus/icons-vue'
 import { useQualityControlStore } from '@/stores/qualityControlStore'
 import QualityStatistics from '@/components/quality/QualityStatistics.vue'
 import RuleConfig from '@/components/quality/RuleConfig.vue'
 import { notificationService } from '@/utils/notificationService'
 import { reportExporter } from '@/utils/reportExporter'
-=======
-import { DocumentChecked } from '@element-plus/icons-vue'
-import { useQualityControlStore } from '@/stores/qualityControlStore'
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 import patientsData from '@/mock/patients.json'
 
 const qcStore = useQualityControlStore()
@@ -378,7 +341,6 @@ const emrData = ref({})
 const qcResult = ref(null)
 const checking = ref(false)
 
-<<<<<<< HEAD
 // 批量质控相关
 const selectedPatientsIds = ref([])  // 存储选中的患者ID
 const batchResults = ref([])  // 批量质控结果
@@ -434,20 +396,11 @@ const batchPassRate = computed(() => {
   return Math.round((batchPassCount.value / batchResults.value.length) * 100)
 })
 
-=======
-// 患者列表（直接从 mock 数据读取）
-const patients = ref([])
-
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 // 加载患者数据
 const loadPatients = () => {
   try {
     patients.value = patientsData.map(p => ({
       ...p,
-<<<<<<< HEAD
-=======
-      // 确保有这些字段
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
       chiefComplaint: p.chiefComplaint || '',
       presentIllness: p.presentIllness || '',
       diagnosis: p.diagnosis || '',
@@ -461,7 +414,6 @@ const loadPatients = () => {
   }
 }
 
-<<<<<<< HEAD
 // 判断患者是否选中
 const isPatientSelected = (patientId) => {
   return selectedPatientsIds.value.includes(patientId)
@@ -641,16 +593,6 @@ const generateBatchReportHtml = (results) => {
     </html>
   `
 }
-=======
-// 筛选患者
-const filteredPatients = computed(() => {
-  if (!searchText.value) return patients.value
-  return patients.value.filter(p => 
-    p.name?.includes(searchText.value) || 
-    p.id?.includes(searchText.value)
-  )
-})
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 
 // 历史记录
 const historyRecords = computed(() => {
@@ -661,10 +603,6 @@ const historyRecords = computed(() => {
 // 选择患者
 const selectPatient = (patient) => {
   selectedPatient.value = patient
-<<<<<<< HEAD
-=======
-  // 从患者数据中提取病历内容
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
   emrData.value = {
     chiefComplaint: patient.chiefComplaint || '',
     presentIllness: patient.presentIllness || '',
@@ -673,18 +611,10 @@ const selectPatient = (patient) => {
     auxiliaryExam: patient.auxiliaryExam || '',
     treatmentPlan: patient.treatmentPlan || ''
   }
-<<<<<<< HEAD
   qcResult.value = qcStore.getLatestQC(patient.id)
 }
 
 // 执行质控（单个）
-=======
-  // 获取历史质控结果
-  qcResult.value = qcStore.getLatestQC(patient.id)
-}
-
-// 执行质控
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 const runQualityCheck = async () => {
   if (!selectedPatient.value) {
     ElMessage.warning('请先选择患者')
@@ -698,7 +628,6 @@ const runQualityCheck = async () => {
     qcResult.value = result
     qcStore.saveQC(selectedPatient.value.id, result)
     
-<<<<<<< HEAD
     if (!result.passed) {
       notificationService.notifyQualityFailed(
         selectedPatient.value.name, 
@@ -715,8 +644,6 @@ const runQualityCheck = async () => {
     }
     loadNotifications()
     
-=======
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
     if (result.passed) {
       ElMessage.success(`质控完成！得分：${result.score}，等级：${result.grade}`)
     } else {
@@ -758,10 +685,6 @@ const reject = () => {
 
 // 获取病历状态类型
 const getEmrStatusType = (patient) => {
-<<<<<<< HEAD
-=======
-  // 可以根据患者是否有病历记录来判断
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
   if (patient.emrStatus === 'completed') return 'success'
   if (patient.emrStatus === 'pending') return 'warning'
   return 'info'
@@ -784,7 +707,6 @@ const scoreClass = computed(() => {
   return 'score-fail'
 })
 
-<<<<<<< HEAD
 // 获取得分样式（用于批量详情）
 const getScoreClass = (score) => {
   if (score >= 90) return 'score-excellent'
@@ -833,14 +755,6 @@ const exportReport = async () => {
 onMounted(() => {
   loadPatients()
   notificationService.requestNotificationPermission()
-=======
-// 格式化时间
-const formatTime = (time) => new Date(time).toLocaleString('zh-CN')
-
-// 页面加载时加载患者数据
-onMounted(() => {
-  loadPatients()
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 })
 </script>
 
@@ -856,7 +770,6 @@ onMounted(() => {
   align-items: center;
 }
 
-<<<<<<< HEAD
 /* 患者列表样式 */
 .patient-list { max-height: 600px; overflow-y: auto; }
 .list-header {
@@ -873,10 +786,6 @@ onMounted(() => {
 .patient-item {
   display: flex;
   align-items: flex-start;
-=======
-.patient-list { max-height: 600px; overflow-y: auto; }
-.patient-item {
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
   padding: 12px;
   border-bottom: 1px solid #ebeef5;
   cursor: pointer;
@@ -884,13 +793,10 @@ onMounted(() => {
 }
 .patient-item:hover { background: #f5f7fa; }
 .patient-item.active { background: #ecf5ff; border-left: 3px solid #409eff; }
-<<<<<<< HEAD
 
 .patient-checkbox { margin-right: 12px; padding-top: 2px; }
 .patient-content { flex: 1; }
 
-=======
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 .patient-name { font-weight: bold; margin-bottom: 6px; }
 .patient-info { display: flex; justify-content: space-between; font-size: 12px; color: #909399; margin-bottom: 6px; }
 .patient-diagnosis { font-size: 13px; color: #606266; }
@@ -915,7 +821,6 @@ onMounted(() => {
 .pass-result { margin: 20px 0; }
 .qc-actions { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
 .history { margin-top: 20px; }
-<<<<<<< HEAD
 
 /* 批量统计样式 */
 .batch-stats { margin-top: 20px; }
@@ -943,6 +848,4 @@ onMounted(() => {
 .notif-title { font-weight: bold; margin-bottom: 6px; }
 .notif-message { font-size: 13px; color: #606266; margin-bottom: 6px; }
 .notif-time { font-size: 12px; color: #909399; }
-=======
->>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
 </style>
