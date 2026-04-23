@@ -69,4 +69,8 @@ router.beforeEach((to, from) => {
   return true  // 返回 true 表示继续导航
 })
 
+<<<<<<< HEAD
 export default router
+=======
+export default router
+>>>>>>> 5ab51e5f44226a12f0a1e6a6280030dce56cd60f
