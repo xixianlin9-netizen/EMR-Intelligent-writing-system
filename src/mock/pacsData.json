@@ -1,0 +1,20 @@
+[
+    {
+      "id": "img_001",
+      "patientId": "p001",
+      "date": "2026-03-16",
+      "modality": "CT",
+      "bodyPart": "胸部",
+      "finding": "双肺纹理增粗，未见明显实变",
+      "impression": "支气管炎可能"
+    },
+    {
+      "id": "img_002",
+      "patientId": "p001",
+      "date": "2026-03-15",
+      "modality": "X线",
+      "bodyPart": "胸部",
+      "finding": "右下肺斑片状阴影",
+      "impression": "肺炎"
+    }
+  ]
