@@ -60,11 +60,33 @@
         default-first-option
         :reserve-keyword="false"
         placeholder="选择或输入既往病史"
-        class="past-history-select"
+        class="history-select"
         @change="updatePastHistory"
       >
         <el-option
           v-for="item in commonPastHistory"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
+      </el-select>
+    </el-form-item>
+
+    <!-- 家族史 -->
+    <el-form-item label="家族史">
+      <el-select
+        v-model="selectedFamilyHistory"
+        multiple
+        filterable
+        allow-create
+        default-first-option
+        :reserve-keyword="false"
+        placeholder="选择或输入家族遗传病史"
+        class="history-select"
+        @change="updateFamilyHistory"
+      >
+        <el-option
+          v-for="item in commonFamilyHistory"
           :key="item"
           :label="item"
           :value="item"
@@ -117,84 +139,101 @@
       />
     </el-form-item>
 
-    <!-- 诊断 -->
-    <el-form-item label="诊断" required>
-      <div v-for="(diagnosis, index) in localDiagnoses" :key="index" class="diagnosis-item">
-        <el-row :gutter="10">
-          <el-col :span="16">
-            <el-input
-              v-model="localDiagnoses[index]"
-              placeholder="输入诊断名称"
-              @input="handleDiagnosisChange"
-            />
-          </el-col>
-          <el-col :span="6">
-            <el-select 
-              v-model="diagnosisTypes[index]" 
-              placeholder="类型"
-              size="small"
-              @change="handleDiagnosisTypeChange"
-            >
-              <el-option label="主要诊断" value="primary" />
-              <el-option label="次要诊断" value="secondary" />
-              <el-option label="待查" value="suspected" />
-            </el-select>
-          </el-col>
-          <el-col :span="2">
-            <el-button 
-              type="danger" 
-              :icon="Delete" 
-              circle 
-              size="small"
-              @click="removeDiagnosis(index)"
-            />
-          </el-col>
-        </el-row>
-        
-        <!-- ICD-10 建议 -->
-        <div v-if="showICDSuggestions(index)" class="icd-suggestions">
-          <el-tag 
-            v-for="code in icdSuggestions[localDiagnoses[index]]" 
-            :key="code"
-            size="small"
-            type="info"
-            effect="plain"
-            @click="applyICDCode(index, code)"
-          >
-            {{ code }}
-          </el-tag>
-        </div>
-      </div>
-      
-      <el-button 
-        type="primary" 
-        link 
-        @click="addDiagnosis"
-        :icon="Plus"
-      >
-        添加诊断
-      </el-button>
+    <!-- 辅助检查 -->
+    <el-form-item label="辅助检查">
+      <el-input
+        v-model="auxiliaryExam"
+        type="textarea"
+        :rows="3"
+        placeholder="血常规、影像学检查等结果..."
+        @input="updateAuxiliaryExam"
+      />
     </el-form-item>
 
-    <!-- 过敏史 -->
-    <el-form-item label="过敏史">
-      <el-select
-        v-model="allergies"
-        multiple
-        filterable
-        allow-create
-        default-first-option
-        placeholder="选择或输入过敏药物/物质"
-        class="allergy-select"
-        @change="updateAllergies"
-      >
-        <el-option
-          v-for="item in commonAllergies"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
+    <!-- 四诊摘要 -->
+    <el-form-item label="四诊摘要">
+      <el-input
+        v-model="fourDiagnosis"
+        type="textarea"
+        :rows="3"
+        placeholder="望、闻、问、切四诊摘要..."
+        @input="updateFourDiagnosis"
+      />
+    </el-form-item>
+
+    <!-- 处理 -->
+    <el-form-item label="处理">
+      <el-input
+        v-model="treatment"
+        type="textarea"
+        :rows="4"
+        placeholder="治疗方案、用药建议等..."
+        @input="updateTreatment"
+      />
+    </el-form-item>
+
+    <!-- 月经史（仅限女性患者显示） -->
+    <el-form-item v-if="isFemalePatient" label="月经史">
+      <el-row :gutter="16">
+        <el-col :span="8">
+          <el-input
+            v-model="menstrualHistory.onset"
+            placeholder="初潮年龄"
+            @input="updateMenstrualHistory"
+          >
+            <template #append>岁</template>
+          </el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-input
+            v-model="menstrualHistory.cycle"
+            placeholder="月经周期"
+            @input="updateMenstrualHistory"
+          >
+            <template #append>天</template>
+          </el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-input
+            v-model="menstrualHistory.duration"
+            placeholder="经期持续时间"
+            @input="updateMenstrualHistory"
+          >
+            <template #append>天</template>
+          </el-input>
+        </el-col>
+      </el-row>
+      <el-row :gutter="16" style="margin-top: 12px">
+        <el-col :span="12">
+          <el-input
+            v-model="menstrualHistory.lastMenstrual"
+            placeholder="末次月经"
+            @input="updateMenstrualHistory"
+          >
+            <template #prepend>末次月经</template>
+          </el-input>
+        </el-col>
+        <el-col :span="12">
+          <el-select
+            v-model="menstrualHistory.regularity"
+            placeholder="月经规律性"
+            clearable
+            @change="updateMenstrualHistory"
+          >
+            <el-option label="规律" value="regular" />
+            <el-option label="不规律" value="irregular" />
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row style="margin-top: 12px">
+        <el-col :span="24">
+          <el-input
+            v-model="menstrualHistory.remarks"
+            placeholder="备注（如：痛经、经量异常等）"
+            @input="updateMenstrualHistory"
+          />
+        </el-col>
+      </el-row>
     </el-form-item>
   </div>
 </template>
@@ -215,6 +254,10 @@ const props = defineProps({
   diagnoses: {
     type: Array,
     default: () => []
+  },
+  patientGender: {
+    type: String,
+    default: ''
   }
 })
 
@@ -225,57 +268,85 @@ const emit = defineEmits([
   'change'
 ])
 
-// 本地状态
+// ==================== 本地状态 ====================
+// 主诉
 const localChiefComplaint = ref(props.chiefComplaint)
-const localPresentIllness = ref(props.presentIllness)
-const localDiagnoses = ref([...props.diagnoses])
 
-// 扩展字段
-const diagnosisTypes = ref([])
+// 现病史
+const localPresentIllness = ref(props.presentIllness)
 const selectedSymptoms = ref([])
 const symptomDescription = ref('')
-const selectedPastHistory = ref([])
-const physicalExam = ref('')
-const allergies = ref([])
 
-// 生命体征
+// 既往史
+const selectedPastHistory = ref([])
+
+// 家族史
+const selectedFamilyHistory = ref([])
+
+// 体格检查
 const vitalSigns = ref({
   temperature: '',
   heartRate: '',
   respiratoryRate: '',
   bloodPressure: ''
 })
+const physicalExam = ref('')
 
+// 辅助检查
+const auxiliaryExam = ref('')
+
+// 四诊摘要
+const fourDiagnosis = ref('')
+
+// 处理
+const treatment = ref('')
+
+// 月经史（仅女性）
+const menstrualHistory = ref({
+  onset: '',
+  cycle: '',
+  duration: '',
+  lastMenstrual: '',
+  regularity: '',
+  remarks: ''
+})
+
+// 诊断（保留原有功能）
+const localDiagnoses = ref([...props.diagnoses])
+const diagnosisTypes = ref([])
+
+// ==================== 常量定义 ====================
 // 常见症状
 const commonSymptoms = [
   '发热', '咳嗽', '咳痰', '胸痛', '呼吸困难',
   '头痛', '头晕', '恶心', '呕吐', '腹痛',
-  '腹泻', '关节痛', '乏力', '食欲不振'
+  '腹泻', '关节痛', '乏力', '食欲不振', '口干',
+  '盗汗', '心悸', '水肿', '失眠', '焦虑'
 ]
 
 // 常见既往史
 const commonPastHistory = [
-  '高血压', '糖尿病', '冠心病', '肝炎', '结核',
-  '手术史', '外伤史', '输血史', '吸烟史', '饮酒史'
+  '高血压', '糖尿病', '冠心病', '心肌梗死', '心力衰竭',
+  '慢性阻塞性肺疾病', '哮喘', '肝炎', '肝硬化', '肾病综合征',
+  '脑梗死', '脑出血', '甲状腺功能亢进', '甲状腺功能减退',
+  '手术史', '外伤史', '输血史', '过敏史', '吸烟史', '饮酒史'
 ]
 
-// 常见过敏原
-const commonAllergies = [
-  '青霉素', '头孢菌素', '磺胺类', '阿司匹林',
-  '碘造影剂', '花粉', '尘螨', '海鲜', '鸡蛋'
+// 常见家族史
+const commonFamilyHistory = [
+  '高血压家族史', '糖尿病家族史', '冠心病家族史', '脑血管病家族史',
+  '恶性肿瘤家族史', '结核病家族史', '遗传性疾病家族史', '精神病家族史'
 ]
 
-// ICD-10 建议（模拟数据）
-const icdSuggestions = {
-  '肺炎': ['J15.9', 'J18.9'],
-  '高血压': ['I10', 'I11.9'],
-  '糖尿病': ['E11.9', 'E14.9'],
-  '支气管炎': ['J40', 'J42']
-}
-
-// 显示症状标签的条件
+// ==================== 计算属性 ====================
+// 是否显示症状标签
 const showSymptoms = computed(() => {
   return localPresentIllness.value === '急性' || localPresentIllness.value === '亚急性'
+})
+
+// 是否为女性患者
+const isFemalePatient = computed(() => {
+  return props.patientGender === '女' || props.patientGender === 'female'
 })
 
 // 完整的现病史文本
@@ -294,7 +365,7 @@ const fullPresentIllness = computed(() => {
   return text
 })
 
-// 监听props变化
+// ==================== 监听器 ====================
 watch(() => props.chiefComplaint, (val) => {
   localChiefComplaint.value = val
 })
@@ -307,67 +378,70 @@ watch(() => props.diagnoses, (val) => {
   localDiagnoses.value = [...val]
 }, { deep: true })
 
-// ==================== 新增：设置表单数据的方法 ====================
+// ==================== setFormData 方法（供父组件调用） ====================
 function setFormData(data) {
   console.log('StructuredForm: 设置表单数据', data)
   
-  // 设置主诉
   if (data.chiefComplaint !== undefined) {
     localChiefComplaint.value = data.chiefComplaint
     emit('update:chiefComplaint', data.chiefComplaint)
   }
   
-  // 设置现病史类型
   if (data.presentIllnessType !== undefined) {
     localPresentIllness.value = data.presentIllnessType
     emit('update:presentIllness', data.presentIllnessType)
   }
   
-  // 设置症状列表
   if (data.symptoms !== undefined && Array.isArray(data.symptoms)) {
     selectedSymptoms.value = data.symptoms
   }
   
-  // 设置症状描述
   if (data.symptomDescription !== undefined) {
     symptomDescription.value = data.symptomDescription
   }
   
-  // 设置诊断（支持数组或字符串）
+  if (data.pastHistory !== undefined && Array.isArray(data.pastHistory)) {
+    selectedPastHistory.value = data.pastHistory
+  }
+  
+  if (data.familyHistory !== undefined && Array.isArray(data.familyHistory)) {
+    selectedFamilyHistory.value = data.familyHistory
+  }
+  
   if (data.diagnoses !== undefined) {
     const diagnoses = Array.isArray(data.diagnoses) ? data.diagnoses : [data.diagnoses]
     localDiagnoses.value = diagnoses
     emit('update:diagnoses', diagnoses)
   }
   
-  // 设置体格检查
-  if (data.physicalExam !== undefined) {
-    physicalExam.value = data.physicalExam
-    emit('change', { field: 'physicalExam', value: data.physicalExam })
-  }
-  
-  // 设置既往史
-  if (data.pastHistory !== undefined && Array.isArray(data.pastHistory)) {
-    selectedPastHistory.value = data.pastHistory
-    emit('change', { field: 'pastHistory', value: data.pastHistory })
-  }
-  
-  // 设置生命体征
   if (data.vitalSigns !== undefined) {
     vitalSigns.value = { ...vitalSigns.value, ...data.vitalSigns }
-    emit('change', { field: 'vitalSigns', value: vitalSigns.value })
   }
   
-  // 触发整体变化事件
+  if (data.physicalExam !== undefined) {
+    physicalExam.value = data.physicalExam
+  }
+  
+  if (data.auxiliaryExam !== undefined) {
+    auxiliaryExam.value = data.auxiliaryExam
+  }
+  
+  if (data.fourDiagnosis !== undefined) {
+    fourDiagnosis.value = data.fourDiagnosis
+  }
+  
+  if (data.treatment !== undefined) {
+    treatment.value = data.treatment
+  }
+  
+  if (data.menstrualHistory !== undefined && isFemalePatient.value) {
+    menstrualHistory.value = { ...menstrualHistory.value, ...data.menstrualHistory }
+  }
+  
   emit('change', { field: 'structuredData', value: data })
 }
 
-// 暴露方法给父组件
-defineExpose({
-  setFormData
-})
-
-// ==================== 原有方法 ====================
+// ==================== 事件处理函数 ====================
 function handleChiefComplaintChange() {
   emit('update:chiefComplaint', localChiefComplaint.value)
   emit('change', { field: 'chiefComplaint', value: localChiefComplaint.value })
@@ -396,6 +470,10 @@ function updatePastHistory() {
   emit('change', { field: 'pastHistory', value: selectedPastHistory.value })
 }
 
+function updateFamilyHistory() {
+  emit('change', { field: 'familyHistory', value: selectedFamilyHistory.value })
+}
+
 function updateVitalSigns() {
   emit('change', { field: 'vitalSigns', value: vitalSigns.value })
 }
@@ -404,10 +482,23 @@ function updatePhysicalExam() {
   emit('change', { field: 'physicalExam', value: physicalExam.value })
 }
 
-function updateAllergies() {
-  emit('change', { field: 'allergies', value: allergies.value })
+function updateAuxiliaryExam() {
+  emit('change', { field: 'auxiliaryExam', value: auxiliaryExam.value })
 }
 
+function updateFourDiagnosis() {
+  emit('change', { field: 'fourDiagnosis', value: fourDiagnosis.value })
+}
+
+function updateTreatment() {
+  emit('change', { field: 'treatment', value: treatment.value })
+}
+
+function updateMenstrualHistory() {
+  emit('change', { field: 'menstrualHistory', value: menstrualHistory.value })
+}
+
+// ==================== 诊断相关方法（保留） ====================
 function addDiagnosis() {
   localDiagnoses.value.push('')
   diagnosisTypes.value.push('secondary')
@@ -425,26 +516,17 @@ function handleDiagnosisChange() {
   emit('change', { field: 'diagnoses', value: localDiagnoses.value })
 }
 
-function handleDiagnosisTypeChange() {
-  emit('change', { field: 'diagnosisTypes', value: diagnosisTypes.value })
-}
-
-function showICDSuggestions(index) {
-  const diagnosis = localDiagnoses.value[index]
-  return diagnosis && icdSuggestions[diagnosis]
-}
-
-function applyICDCode(index, code) {
-  localDiagnoses.value[index] = `${localDiagnoses.value[index]} (${code})`
-  handleDiagnosisChange()
-}
+// 暴露方法给父组件
+defineExpose({
+  setFormData
+})
 </script>
 
 <style scoped>
 .structured-form {
   padding: 20px;
   background-color: #fff;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .illness-type {
@@ -464,6 +546,13 @@ function applyICDCode(index, code) {
 .symptom-tag {
   margin: 0 8px 8px 0;
   cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.symptom-tag:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #409eff;
 }
 
 .vital-signs {
@@ -477,23 +566,12 @@ function applyICDCode(index, code) {
   width: 120px;
 }
 
+.history-select {
+  width: 100%;
+}
+
 .diagnosis-item {
   margin-bottom: 10px;
-}
-
-.icd-suggestions {
-  margin-top: 5px;
-  margin-left: 20px;
-}
-
-.icd-suggestions .el-tag {
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.past-history-select,
-.allergy-select {
-  width: 100%;
 }
 
 :deep(.el-form-item__label) {

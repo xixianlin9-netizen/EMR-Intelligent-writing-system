@@ -21,10 +21,10 @@
       </div>
     </div>
 
-    <!-- 告警区域 -->
-    <template v-if="isInpatient && alerts && alerts.length > 0">
+    <!-- 告警区域 - 仅住院模式显示原有告警 -->
+    <template v-if="isInpatient && oldAlerts && oldAlerts.length > 0">
       <div class="alert-container">
-        <div v-for="(alert, index) in alerts" :key="index" class="alert-item">
+        <div v-for="(alert, index) in oldAlerts" :key="index" class="alert-item">
           <el-alert
             :title="alert.message"
             :type="alert.level === 'error' ? 'error' : 'warning'"
@@ -34,6 +34,29 @@
         </div>
       </div>
     </template>
+
+    <!-- 超时告警区域 - 显示超过24小时未提交的病历 -->
+    <div v-if="alerts && alerts.length > 0" class="alert-section">
+      <div class="alert-header">
+        <el-icon class="alert-icon"><WarningFilled /></el-icon>
+        <span class="alert-title">病历超时告警</span>
+        <span class="alert-count">共 {{ alerts.length }} 份病历超时</span>
+      </div>
+      <div class="alert-list">
+        <div 
+          v-for="alert in alerts" 
+          :key="alert.recordId"
+          class="alert-item"
+          @click="goToEdit(alert.patientId, alert.recordId)"
+        >
+          <el-icon class="alert-item-icon"><Warning /></el-icon>
+          <span class="alert-message">{{ alert.message }}</span>
+          <el-button type="primary" link size="small" @click.stop="goToEdit(alert.patientId, alert.recordId)">
+            立即处理
+          </el-button>
+        </div>
+      </div>
+    </div>
 
     <!-- 模式提示条 -->
     <div class="mode-tip" :class="{ 'outpatient-mode': isOutpatient, 'inpatient-mode': isInpatient }">
@@ -62,7 +85,7 @@
             <span class="value-unit">{{ card.unit }}</span>
           </div>
           
-          <!-- 迷你趋势图 - 使用动态数据 -->
+          <!-- 迷你趋势图 -->
           <div class="stat-card-chart">
             <canvas :ref="el => setChartCanvas(el, card.key)" class="mini-canvas"></canvas>
           </div>
@@ -79,7 +102,7 @@
       </el-col>
     </el-row>
 
-    <!-- 主要内容区（保持不变） -->
+    <!-- 主要内容区 -->
     <el-row :gutter="24" class="main-row">
       <el-col :xs="24" :lg="16">
         <div class="section-card">
@@ -127,6 +150,11 @@
                 </template>
               </el-table-column>
               <el-table-column prop="createTime" label="创建时间" width="120" />
+              <el-table-column prop="lastEditTime" label="最后编辑" width="120">
+                <template #default="{ row }">
+                  {{ row.lastEditTime || row.createTime || '-' }}
+                </template>
+              </el-table-column>
               <el-table-column prop="diagnosis" label="诊断" min-width="150" show-overflow-tooltip>
                 <template #default="{ row }">
                   <span class="diagnosis-text">{{ row.diagnosis || '-' }}</span>
@@ -145,7 +173,6 @@
                     type="primary" 
                     link 
                     @click="continueEdit(row)"
-                    :disabled="row.status === 'completed'"
                     class="action-btn"
                   >
                     {{ row.status === 'completed' ? '查看' : '继续编辑' }}
@@ -247,10 +274,11 @@
 <script setup>
 import { ref, computed, watch, onMounted, onActivated, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import * as echarts from 'echarts'
 import { 
   Document, ArrowUp, ArrowRight, User, OfficeBuilding,
   Files, Guide, Edit, DataAnalysis, DocumentChecked, 
-  Clock, UserFilled, List
+  Clock, UserFilled, List, WarningFilled, Warning
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useEmrRecordStore } from '@/stores/emrRecordStore'
@@ -269,8 +297,10 @@ const { recentEmrRecords, alerts, pendingCount, alertCount } = storeToRefs(emrRe
 const { isOutpatient, isInpatient } = systemModeStore
 const doctorName = computed(() => userStore.userInfo?.name || '张')
 
-// 存储 canvas 引用和数据
-const canvasMap = ref(new Map())
+// 保留原有的告警数据（来自 alertStore）
+const oldAlerts = ref([])
+
+const chartCanvasMap = ref(new Map())
 const chartDataMap = ref({})
 
 const currentDate = computed(() => {
@@ -282,160 +312,15 @@ const currentDate = computed(() => {
 const todayVisits = computed(() => emrRecordStore.todayCompletedCount || 0)
 const tableKey = ref(0)
 
-// ==================== 动态生成趋势数据 ====================
-// 根据当前实际值生成历史趋势数据
-function generateTrendData(currentValue, key) {
-  // 基础值（当前值的 60%-80% 作为起始点）
-  const baseValue = Math.max(1, currentValue * 0.6)
-  // 生成12个月的趋势数据，呈现波动上升或平稳趋势
-  const months = 12
-  const data = []
-  
-  for (let i = 0; i < months; i++) {
-    let value
-    // 计算进度 (0 到 1)
-    const progress = i / (months - 1)
-    
-    if (key === 'avgWaitTime') {
-      // 平均等候时间应该是下降趋势（越来越好）
-      const startValue = currentValue * 1.5
-      const endValue = currentValue
-      value = startValue - (startValue - endValue) * progress
-      // 添加随机波动
-      value = value + (Math.random() - 0.5) * (currentValue * 0.1)
-      value = Math.max(5, Math.round(value * 10) / 10)
-    } else if (key === 'pendingRecords' || key === 'pendingOrders') {
-      // 待处理项应该是有波动的
-      const avgValue = currentValue * (0.7 + Math.random() * 0.6)
-      value = avgValue + (Math.random() - 0.5) * (currentValue * 0.3)
-      value = Math.max(0, Math.round(value))
-    } else {
-      // 其他指标（门诊量、患者数等）应该是上升趋势
-      const startValue = baseValue * (0.5 + Math.random() * 0.3)
-      const endValue = currentValue
-      value = startValue + (endValue - startValue) * progress
-      // 添加随机波动
-      value = value + (Math.random() - 0.5) * (currentValue * 0.15)
-      value = Math.max(0, Math.round(value))
-    }
-    data.push(value)
-  }
-  
-  return data
-}
-
-// 绘制迷你趋势图
-function drawMiniChart(canvas, data, color) {
-  if (!canvas) return
-  
-  const ctx = canvas.getContext('2d')
-  const width = canvas.parentElement?.clientWidth || 200
-  const height = 50
-  
-  canvas.width = width
-  canvas.height = height
-  
-  ctx.clearRect(0, 0, width, height)
-  
-  if (!data || data.length < 2) return
-  
-  // 找出最大最小值用于归一化
-  const maxVal = Math.max(...data)
-  const minVal = Math.min(...data)
-  const range = maxVal - minVal || 1
-  
-  // 计算点坐标
-  const step = width / (data.length - 1)
-  const points = data.map((val, idx) => ({
-    x: idx * step,
-    y: height - ((val - minVal) / range) * (height - 4) - 2
-  }))
-  
-  // 绘制填充区域
-  ctx.beginPath()
-  ctx.moveTo(points[0].x, height)
-  points.forEach(point => {
-    ctx.lineTo(point.x, point.y)
-  })
-  ctx.lineTo(points[points.length - 1].x, height)
-  ctx.closePath()
-  ctx.fillStyle = color + '20'
-  ctx.fill()
-  
-  // 绘制线条
-  ctx.beginPath()
-  ctx.moveTo(points[0].x, points[0].y)
-  for (let i = 1; i < points.length; i++) {
-    // 使用贝塞尔曲线平滑
-    const cp1x = points[i-1].x + step / 2
-    const cp1y = points[i-1].y
-    const cp2x = points[i].x - step / 2
-    const cp2y = points[i].y
-    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, points[i].x, points[i].y)
-  }
-  ctx.strokeStyle = color
-  ctx.lineWidth = 2
-  ctx.stroke()
-  
-  // 绘制渐变结束点
-  const lastPoint = points[points.length - 1]
-  ctx.beginPath()
-  ctx.arc(lastPoint.x, lastPoint.y, 3, 0, 2 * Math.PI)
-  ctx.fillStyle = color
-  ctx.fill()
-  ctx.shadowBlur = 0
-}
-
-// 设置 canvas 引用并绘制图表
-function setChartCanvas(el, key) {
-  if (!el) return
-  canvasMap.value.set(key, el)
-  
-  // 获取当前值
-  let currentValue
-  switch (key) {
-    case 'todayVisits':
-    case 'todayAdmissions':
-      currentValue = emrRecordStore.todayCompletedCount || 30
-      break
-    case 'pendingRecords':
-      currentValue = pendingCount.value || 8
-      break
-    case 'totalPatients':
-    case 'inHospital':
-      currentValue = patientStore.patients?.length || 100
-      break
-    case 'avgWaitTime':
-      currentValue = 15
-      break
-    case 'pendingOrders':
-      currentValue = 12
-      break
-    default:
-      currentValue = 50
-  }
-  
-  // 生成趋势数据（缓存）
-  if (!chartDataMap.value[key]) {
-    chartDataMap.value[key] = generateTrendData(currentValue, key)
-  }
-  
-  // 获取卡片颜色
-  const card = statsCards.value.find(c => c.key === key)
-  const color = card?.color || '#409eff'
-  
-  // 绘制图表
-  drawMiniChart(el, chartDataMap.value[key], color)
-}
-
-// 监听窗口大小变化重新绘制
-function handleResize() {
-  canvasMap.value.forEach((canvas, key) => {
-    if (canvas && chartDataMap.value[key]) {
-      const card = statsCards.value.find(c => c.key === key)
-      drawMiniChart(canvas, chartDataMap.value[key], card?.color || '#409eff')
-    }
-  })
+// 模拟趋势数据
+const trendData = {
+  todayVisits: [12, 15, 18, 22, 25, 28, 32, 35, 38, 42, 45, 48],
+  pendingRecords: [8, 7, 9, 6, 8, 5, 7, 4, 6, 3, 5, 4],
+  totalPatients: [120, 125, 130, 128, 135, 140, 138, 145, 150, 148, 155, 160],
+  avgWaitTime: [18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7],
+  todayAdmissions: [5, 6, 8, 7, 9, 10, 8, 11, 12, 10, 13, 14],
+  inHospital: [45, 46, 48, 47, 49, 50, 48, 51, 52, 50, 53, 54],
+  pendingOrders: [10, 9, 11, 8, 10, 7, 9, 6, 8, 5, 7, 6]
 }
 
 // 统计卡片配置
@@ -469,14 +354,51 @@ const commonTemplates = ref([
   { id: 'tmp_003', name: isOutpatient.value ? '门诊初诊模板' : '入院记录模板', icon: 'Document', color: '#eef2f7', desc: '标准入院/初诊记录' }
 ])
 
-// 获取趋势图标
+// 初始化图表
+function initCharts() {
+  nextTick(() => {
+    chartCanvasMap.value.forEach((canvas, key) => {
+      if (!canvas) return
+      const data = trendData[key] || [10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38]
+      const card = statsCards.value.find(c => c.key === key)
+      const color = card?.color || '#409eff'
+      
+      const chart = echarts.init(canvas)
+      chart.setOption({
+        grid: { left: '0%', right: '0%', top: '5%', bottom: '0%', containLabel: true },
+        xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'], show: false },
+        yAxis: { type: 'value', show: false },
+        series: [{
+          data: data,
+          type: 'line',
+          smooth: true,
+          lineStyle: { width: 2, color: color },
+          areaStyle: { opacity: 0.2, color: color },
+          showSymbol: false,
+          tooltip: { show: false }
+        }],
+        tooltip: { show: false },
+        animation: true,
+        animationDuration: 1000
+      })
+      
+      window.addEventListener('resize', () => chart.resize())
+    })
+  })
+}
+
+function setChartCanvas(el, key) {
+  if (!el) return
+  chartCanvasMap.value.set(key, el)
+  initCharts()
+}
+
 function getTrendIcon(trend) {
   if (!trend) return 'ArrowRight'
   const num = parseFloat(trend)
   return num >= 0 ? 'ArrowUp' : 'ArrowDown'
 }
 
-// 获取趋势样式类
 function getTrendClass(trend) {
   if (!trend) return ''
   const num = parseFloat(trend)
@@ -485,69 +407,37 @@ function getTrendClass(trend) {
   return 'trend-steady'
 }
 
-// 监听数据变化，更新图表
-watch([pendingCount, () => patientStore.patients?.length, () => emrRecordStore.todayCompletedCount], () => {
-  // 数据变化时重新生成趋势数据
-  canvasMap.value.forEach((canvas, key) => {
-    let currentValue
-    switch (key) {
-      case 'todayVisits':
-      case 'todayAdmissions':
-        currentValue = emrRecordStore.todayCompletedCount || 30
-        break
-      case 'pendingRecords':
-        currentValue = pendingCount.value || 8
-        break
-      case 'totalPatients':
-      case 'inHospital':
-        currentValue = patientStore.patients?.length || 100
-        break
-      case 'avgWaitTime':
-        currentValue = 15
-        break
-      case 'pendingOrders':
-        currentValue = 12
-        break
-      default:
-        currentValue = 50
-    }
-    chartDataMap.value[key] = generateTrendData(currentValue, key)
-    const card = statsCards.value.find(c => c.key === key)
-    drawMiniChart(canvas, chartDataMap.value[key], card?.color || '#409eff')
-  })
-}, { deep: true })
+// 跳转到病历编辑器
+function goToEdit(patientId, recordId) {
+  router.push(`/emr-editor/${patientId}?emrId=${recordId}`)
+}
+
+function continueEdit(record) {
+  if (record && record.patientId) {
+    router.push(`/emr-editor/${record.patientId}?emrId=${record.id}`)
+  } else {
+    ElMessage.warning('病历信息不完整')
+  }
+}
+
+function useTemplate(template) {
+  ElMessage.success(`已选择模板：${template.name}`)
+  router.push('/emr-editor')
+}
 
 watch(recentEmrRecords, () => {
   tableKey.value++
 }, { deep: true })
 
 onActivated(() => {
-  if (emrRecordStore.refreshRecords) {
-    emrRecordStore.refreshRecords()
-  }
+  emrRecordStore.refreshRecords?.()
   tableKey.value++
-  // 重新绘制所有图表
-  setTimeout(() => {
-    canvasMap.value.forEach((canvas, key) => {
-      if (canvas && chartDataMap.value[key]) {
-        const card = statsCards.value.find(c => c.key === key)
-        drawMiniChart(canvas, chartDataMap.value[key], card?.color || '#409eff')
-      }
-    })
-  }, 100)
+  initCharts()
 })
 
 onMounted(() => {
-  if (emrRecordStore.refreshRecords) {
-    emrRecordStore.refreshRecords()
-  }
-  window.addEventListener('resize', handleResize)
-})
-
-// 组件卸载时移除事件监听
-import { onUnmounted } from 'vue'
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  emrRecordStore.refreshRecords?.()
+  initCharts()
 })
 
 function getStatsValue(key) {
@@ -603,19 +493,6 @@ function getAvatarColor(name) {
   const colors = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#8ba3c4']
   const index = (name?.charCodeAt(0) || 0) % colors.length
   return colors[index]
-}
-
-function continueEdit(record) {
-  if (record && record.patientId) {
-    router.push(`/emr-editor/${record.patientId}?emrId=${record.id}`)
-  } else {
-    ElMessage.warning('病历信息不完整')
-  }
-}
-
-function useTemplate(template) {
-  ElMessage.success(`已选择模板：${template.name}`)
-  router.push('/emr-editor')
 }
 </script>
 
@@ -704,8 +581,74 @@ function useTemplate(template) {
   margin-bottom: 24px;
 }
 
+/* 超时告警区域 */
+.alert-section {
+  background: #fff;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #e6a23c;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #fdf6ec;
+  border-bottom: 1px solid #f0e0c0;
+}
+
+.alert-icon {
+  font-size: 20px;
+  color: #e6a23c;
+}
+
+.alert-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e6a23c;
+}
+
+.alert-count {
+  margin-left: auto;
+  font-size: 13px;
+  color: #909399;
+}
+
+.alert-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 .alert-item {
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.alert-item:hover {
+  background: #fafafa;
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-item-icon {
+  font-size: 16px;
+  color: #e6a23c;
+}
+
+.alert-message {
+  flex: 1;
+  font-size: 14px;
+  color: #606266;
 }
 
 /* 模式提示条 */
@@ -775,12 +718,11 @@ function useTemplate(template) {
   color: #4a627a;
 }
 
-/* 统计卡片行 */
+/* 统计卡片 */
 .stats-row {
   margin-bottom: 24px;
 }
 
-/* 统计卡片 */
 .stat-card {
   background: white;
   border-radius: 20px;
